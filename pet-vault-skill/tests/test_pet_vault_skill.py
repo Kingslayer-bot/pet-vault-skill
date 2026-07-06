@@ -19,23 +19,30 @@ MANIFEST_SCHEMA = json.loads((SKILL / "schemas" / "report_manifest.schema.json")
 class PetVaultSkillPackageTests(unittest.TestCase):
     def test_skill_metadata_and_readme(self):
         skill_md = SKILL / "SKILL.md"
-        readme = SKILL / "README.md"
-        root_readme = ROOT / "README.md"
+        readme_en = SKILL / "README.md"
+        readme_zh = SKILL / "README.zh-CN.md"
+        root_readme_en = ROOT / "README.md"
+        root_readme_zh = ROOT / "README.zh-CN.md"
         self.assertTrue(skill_md.exists())
         text = skill_md.read_text(encoding="utf-8")
         self.assertNotIn("TODO", text)
         self.assertIn("name: pet-vault-skill", text)
         self.assertIn("claim_check", text)
 
-        readme_text = readme.read_text(encoding="utf-8")
-        for marker in ["中文", "English", "MIT", "PetVault", "LaTeX", "SQLite"]:
-            self.assertIn(marker, readme_text)
-        self.assertIn("未完整实现", readme_text)
-        self.assertIn("not fully implemented", readme_text)
+        skill_en_text = readme_en.read_text(encoding="utf-8")
+        skill_zh_text = readme_zh.read_text(encoding="utf-8")
+        self.assertIn("[中文说明](README.zh-CN.md)", skill_en_text)
+        self.assertIn("[English](README.md)", skill_zh_text)
+        self.assertIn("not fully implemented", skill_en_text)
+        self.assertIn("未完整实现", skill_zh_text)
 
-        root_text = root_readme.read_text(encoding="utf-8")
-        self.assertIn("first open-source version", root_text)
-        self.assertNotIn("C:/Users/20833/.codex", root_text)
+        root_en_text = root_readme_en.read_text(encoding="utf-8")
+        root_zh_text = root_readme_zh.read_text(encoding="utf-8")
+        self.assertIn("[中文说明](README.zh-CN.md)", root_en_text)
+        self.assertIn("[English](README.md)", root_zh_text)
+        self.assertIn("first open-source version", root_en_text)
+        self.assertIn("第一版开源内容", root_zh_text)
+        self.assertNotIn("C:/Users/20833/.codex", root_en_text)
 
     def test_required_resources_exist(self):
         required = [
@@ -45,6 +52,8 @@ class PetVaultSkillPackageTests(unittest.TestCase):
             "config/latex_layout.yaml",
             "config/material_types.yaml",
             "config/safety_rules.yaml",
+            "README.md",
+            "README.zh-CN.md",
             "prompts/orchestrator_agent.md",
             "prompts/material_organizer_agent.md",
             "prompts/report_composer_agent.md",
@@ -88,6 +97,7 @@ class PetVaultSkillPackageTests(unittest.TestCase):
         self.assertEqual([], missing)
         self.assertTrue((ROOT / ".gitattributes").exists())
         self.assertTrue((ROOT / ".github" / "workflows" / "ci.yml").exists())
+        self.assertTrue((ROOT / "README.zh-CN.md").exists())
 
     def test_latex_style_inherits_reference_constraints(self):
         styles = (SKILL / "templates" / "styles.tex.j2").read_text(encoding="utf-8")

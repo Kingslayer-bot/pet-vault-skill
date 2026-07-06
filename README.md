@@ -1,15 +1,16 @@
 ﻿# PetVault AI / pet-vault-skill
 
+[中文说明](README.zh-CN.md)
+
 This repository contains the first open-source version of `pet-vault-skill`, the local-first engine behind **PetVault AI**.
 
-本仓库包含 `pet-vault-skill` 的第一版开源内容。它是 **PetVault AI** 的本地优先底层引擎，用于整理宠物医疗资料、生成解释性 Markdown/LaTeX 报告，并为后续 C 端与 B 端扩展保留结构。
-
-## Repository Layout / 仓库结构
+## Repository Layout
 
 ```text
 pet-vault-skill/
   SKILL.md
   README.md
+  README.zh-CN.md
   agents/
   config/
   prompts/
@@ -21,7 +22,7 @@ pet-vault-skill/
 .github/workflows/
 ```
 
-## Product Scope / 产品范围
+## Product Scope
 
 `PetVault AI` in `PRD V1.1` is defined as a three-layer product:
 
@@ -29,15 +30,15 @@ pet-vault-skill/
 - `B side`: SOAP draft demo structure, clinic-to-client explanation draft structure
 - `Engine`: local material ingestion, structured vault, Markdown/LaTeX/PDF pipeline
 
-当前仓库中的可运行实现仍以 `Engine + C 端主链路` 为主。B 端部分只保留 prompt、schema、模板和目录结构，不宣称已经做成完整医院后台或完整语音转病历链路。
+The runnable implementation in this repository still centers on the `Engine + C-side workflow`. The B-side content in this version is limited to prompts, schemas, templates, and directory structure. It does not claim to be a complete hospital admin platform or a complete voice-to-record workflow.
 
-## Current Version / 当前版本
+## Current Version
 
 - Repository version: `0.1.1`
 - Product baseline: `PetVault AI PRD V1.1`
 - License: `MIT`
 
-## Verified Scope / 已验证能力
+## Verified Scope
 
 - local `vault/raw`, `vault/cleaned`, `vault/structured`, and SQLite storage
 - text-first material ingestion for `.txt`, `.md`, `.csv`, `.json`, `.tex`
@@ -49,9 +50,9 @@ pet-vault-skill/
 - optional PDF compilation when local `xelatex` or `latexmk` is available
 - behavior tests for local storage, safety boundaries, report types, and harness-driven checks
 
-已验证范围说明：当前版本对文本类材料有真实读取能力；对 PDF、DOCX、图片等非文本材料，第一版默认保留原件、建立索引并提示正文待确认，而不是承诺完整 OCR。
+This first version provides real text ingestion for text-based materials. For PDF, DOCX, and image inputs, Phase 1 preserves the original file, creates an index entry, and marks the body text as pending confirmation rather than promising full OCR.
 
-## Quick Start / 快速开始
+## Quick Start
 
 ```bash
 python pet-vault-skill/scripts/run_pipeline.py \
@@ -63,11 +64,9 @@ python pet-vault-skill/scripts/run_pipeline.py \
   --skip-pdf-compile
 ```
 
-More detailed bilingual usage is in [`pet-vault-skill/README.md`](pet-vault-skill/README.md).
+More detailed usage, boundaries, and report-type documentation are in [`pet-vault-skill/README.md`](pet-vault-skill/README.md).
 
-更详细的双语说明、边界和报告类型说明见 [`pet-vault-skill/README.md`](pet-vault-skill/README.md)。
-
-## Validation / 验证
+## Validation
 
 Fast checks:
 
@@ -78,12 +77,12 @@ python -m compileall -q pet-vault-skill/scripts pet-vault-skill/adapters pet-vau
 
 GitHub CI runs the same repository-local checks from a clean checkout.
 
-维护者可选检查：如果本机具备 Codex skill 校验脚本，可额外运行 `quick_validate.py`，但这不是开源仓库的硬依赖。
+Optional maintainer check: if your machine has the Codex skill validator available, you can run `quick_validate.py`, but it is not a hard dependency for the open-source repository.
 
-## Push Target / 推送仓库
+## Push Target
 
 Target repository: [Kingslayer-bot/pet-vault-skill](https://github.com/Kingslayer-bot/pet-vault-skill)
 
-## License / 许可证
+## License
 
 MIT License. See [`LICENSE`](LICENSE).
