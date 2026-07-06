@@ -1,0 +1,4 @@
+﻿{
+  "extends": "./pet_care_report_harness.yaml",
+  "description": "User-facing pet care report quality checks. Internal terms stay out of reports."
+}

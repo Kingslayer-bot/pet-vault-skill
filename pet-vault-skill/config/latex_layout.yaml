@@ -1,0 +1,27 @@
+engine: "xelatex"
+documentclass: "\\documentclass[UTF8,a4paper,11pt,fontset=windows]{ctexart}"
+paper: "A4"
+font_size: "11pt"
+geometry:
+  left: "2.35cm"
+  right: "2.35cm"
+  top: "2.15cm"
+  bottom: "2.20cm"
+  headheight: "15pt"
+  headsep: "0.55cm"
+  footskip: "0.85cm"
+paragraph:
+  indent: "2\\ccwd"
+  parskip: "0pt"
+  linespread: "1.28"
+headings:
+  section: "\\Large\\bfseries"
+  subsection: "\\large\\bfseries"
+  subsubsection: "\\normalsize\\bfseries"
+tables:
+  packages: ["booktabs", "tabularx", "array", "longtable"]
+  arraystretch: "1.22"
+style_notes:
+  - "Inherit the provided fuel-cell template style instead of system defaults."
+  - "Use restrained black-and-white note boxes."
+  - "Keep important summaries before detail tables."

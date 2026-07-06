@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QA Result",
+  "type": "object",
+  "required": ["passed", "blocking_issues", "warnings"],
+  "properties": {
+    "passed": {"type": "boolean"},
+    "blocking_issues": {"type": "array", "items": {"type": "string"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "checks": {"type": "object"}
+  }
+}

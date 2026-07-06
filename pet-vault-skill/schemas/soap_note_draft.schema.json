@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOAP Note Draft",
+  "type": "object",
+  "properties": {
+    "note_id": {"type": ["string", "null"]},
+    "visit_id": {"type": ["string", "null"]},
+    "subjective": {"type": "string"},
+    "objective": {"type": "string"},
+    "assessment": {"type": "string"},
+    "plan": {"type": "string"},
+    "status": {"type": "string", "enum": ["draft", "confirmed", "archived"]}
+  },
+  "required": ["subjective", "objective", "assessment", "plan", "status"]
+}

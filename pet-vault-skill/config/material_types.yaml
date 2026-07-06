@@ -1,0 +1,34 @@
+material_types:
+  bill:
+    labels: ["账单", "费用", "收费", "bill", "expense"]
+    raw_folder: "bills"
+  invoice:
+    labels: ["发票", "收据", "invoice", "receipt"]
+    raw_folder: "invoices"
+  appointment:
+    labels: ["预约", "复诊", "appointment", "follow-up"]
+    raw_folder: "appointments"
+  medical_report:
+    labels: ["检查报告", "影像", "超声", "B超", "report", "imaging"]
+    raw_folder: "medical_reports"
+  lab_report:
+    labels: ["化验", "血常规", "生化", "尿检", "lab"]
+    raw_folder: "lab_reports"
+  prescription:
+    labels: ["处方", "药", "用药", "prescription", "medication"]
+    raw_folder: "prescriptions"
+  insurance_policy:
+    labels: ["保单", "保险", "policy"]
+    raw_folder: "policies"
+  claim_document:
+    labels: ["理赔", "报销", "claim"]
+    raw_folder: "claims"
+  clinic_communication:
+    labels: ["沟通", "医生说", "微信", "communication"]
+    raw_folder: "communications"
+  pet_profile:
+    labels: ["宠物", "品种", "年龄", "绝育", "profile"]
+    raw_folder: "profiles"
+  unknown:
+    labels: []
+    raw_folder: "unknown"

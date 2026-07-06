@@ -1,0 +1,84 @@
+% !TeX program = xelatex
+\documentclass[UTF8,a4paper,11pt,fontset=windows]{ctexart}
+
+\usepackage[
+  left=2.35cm,
+  right=2.35cm,
+  top=2.15cm,
+  bottom=2.20cm,
+  headheight=15pt,
+  headsep=0.55cm,
+  footskip=0.85cm
+]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{indentfirst}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{needspace}
+\usepackage{xcolor}
+
+\setlength{\parindent}{2\ccwd}
+\setlength{\parskip}{0pt}
+\linespread{1.28}
+\setlist[itemize]{leftmargin=2.2em,itemsep=2pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=2.5em,itemsep=2pt,topsep=4pt}
+\captionsetup{font=small,labelsep=quad}
+\hypersetup{hidelinks,pdfauthor={PetVault},pdftitle={Pet Care Report}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small PetVault}
+\rhead{\small Local Care Archive}
+\cfoot{\small\thepage}
+\renewcommand{\headrulewidth}{0.45pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\titleformat{\section}
+  {\Large\bfseries}
+  {\thesection}
+  {0.9em}
+  {}
+\titleformat{\subsection}
+  {\large\bfseries}
+  {\thesubsection}
+  {0.8em}
+  {}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries}
+  {\thesubsubsection}
+  {0.7em}
+  {}
+\titlespacing{\section}{0pt}{1.35em}{0.55em}
+\titlespacing{\subsection}{0pt}{1.0em}{0.35em}
+\titlespacing{\subsubsection}{0pt}{0.8em}{0.25em}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\renewcommand{\arraystretch}{1.22}
+
+\newsavebox{\noteboxsave}
+\newenvironment{notebox}[1]{%
+  \par\medskip
+  \begingroup
+  \setlength{\fboxrule}{0.55pt}%
+  \setlength{\fboxsep}{7pt}%
+  \begin{lrbox}{\noteboxsave}%
+  \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
+    \noindent{\bfseries #1}\par\vspace{2pt}%
+    \ignorespaces
+}{%
+  \end{minipage}%
+  \end{lrbox}%
+  \noindent\fbox{\usebox{\noteboxsave}}%
+  \endgroup
+  \par\medskip
+}
+\newenvironment{keybox}[1][Key Notes]
+  {\begin{notebox}{#1}}
+  {\end{notebox}}

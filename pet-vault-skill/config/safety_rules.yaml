@@ -1,0 +1,14 @@
+﻿{
+  "forbidden_user_terms": ["PRD", "Harness", "HMW", "POV", "产品需求文档", "设计提案约束", "开发者校验"],
+  "forbidden_report_behaviors": [
+    "Inventing missing pet names, clinic names, policy clauses, diagnoses, or treatment conclusions.",
+    "Replacing veterinarian diagnosis or treatment advice.",
+    "Promising insurance claim approval.",
+    "Judging whether a clinic overcharged.",
+    "Labeling the caregiver persona in user-facing text."
+  ],
+  "required_uncertainty_labels": {
+    "zh": ["不确定", "待确认", "资料不足"],
+    "en": ["uncertain", "to confirm", "insufficient data"]
+  }
+}

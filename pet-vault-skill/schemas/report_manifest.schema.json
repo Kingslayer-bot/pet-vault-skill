@@ -1,0 +1,48 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Report Manifest",
+  "type": "object",
+  "required": ["id", "pet_name", "report_type", "created_at", "pdf_status", "materials", "outputs", "warnings"],
+  "properties": {
+    "id": {"type": "string"},
+    "pet_name": {"type": "string"},
+    "report_type": {"type": "string"},
+    "created_at": {"type": "string"},
+    "pdf_status": {"type": "string"},
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "pet_name", "clinic", "date", "source_file", "confidence", "status"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string"},
+          "pet_name": {"type": ["string", "null"]},
+          "clinic": {"type": ["string", "null"]},
+          "date": {"type": ["string", "null"]},
+          "source_file": {"type": "string"},
+          "raw_path": {"type": "string"},
+          "cleaned_markdown_path": {"type": "string"},
+          "confidence": {"type": "number"},
+          "status": {"type": "string"}
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "required": ["report_md", "report_tex", "report_pdf", "manifest", "qa_result", "build_log"],
+      "properties": {
+        "report_md": {"type": "string"},
+        "report_tex": {"type": "string"},
+        "report_pdf": {"type": "string"},
+        "manifest": {"type": "string"},
+        "qa_result": {"type": "string"},
+        "build_log": {"type": "string"}
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}

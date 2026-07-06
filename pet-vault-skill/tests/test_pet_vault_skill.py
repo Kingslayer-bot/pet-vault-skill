@@ -1,0 +1,267 @@
+﻿import json
+import shutil
+import sqlite3
+import subprocess
+import sys
+import unittest
+import uuid
+from pathlib import Path
+
+
+SKILL = Path(__file__).resolve().parents[1]
+ROOT = SKILL.parent
+TMP_ROOT = ROOT / "work" / "tmp" / "package_tests"
+HARNESS = json.loads((SKILL / "config" / "pet_care_report_harness.yaml").read_text(encoding="utf-8-sig"))
+MATERIAL_SCHEMA = json.loads((SKILL / "schemas" / "material_index.schema.json").read_text(encoding="utf-8-sig"))
+MANIFEST_SCHEMA = json.loads((SKILL / "schemas" / "report_manifest.schema.json").read_text(encoding="utf-8-sig"))
+
+
+class PetVaultSkillPackageTests(unittest.TestCase):
+    def test_skill_metadata_and_readme(self):
+        skill_md = SKILL / "SKILL.md"
+        readme = SKILL / "README.md"
+        root_readme = ROOT / "README.md"
+        self.assertTrue(skill_md.exists())
+        text = skill_md.read_text(encoding="utf-8")
+        self.assertNotIn("TODO", text)
+        self.assertIn("name: pet-vault-skill", text)
+        self.assertIn("claim_check", text)
+
+        readme_text = readme.read_text(encoding="utf-8")
+        for marker in ["中文", "English", "MIT", "PetVault", "LaTeX", "SQLite"]:
+            self.assertIn(marker, readme_text)
+        self.assertIn("未完整实现", readme_text)
+        self.assertIn("not fully implemented", readme_text)
+
+        root_text = root_readme.read_text(encoding="utf-8")
+        self.assertIn("first open-source version", root_text)
+        self.assertNotIn("C:/Users/20833/.codex", root_text)
+
+    def test_required_resources_exist(self):
+        required = [
+            "agents/openai.yaml",
+            "config/agents.yaml",
+            "config/pet_care_report_harness.yaml",
+            "config/latex_layout.yaml",
+            "config/material_types.yaml",
+            "config/safety_rules.yaml",
+            "prompts/orchestrator_agent.md",
+            "prompts/material_organizer_agent.md",
+            "prompts/report_composer_agent.md",
+            "prompts/quality_inspector_agent.md",
+            "prompts/clinic_soap_draft_agent.md",
+            "prompts/clinic_client_summary_agent.md",
+            "schemas/material_index.schema.json",
+            "schemas/report_manifest.schema.json",
+            "schemas/qa_result.schema.json",
+            "schemas/soap_note_draft.schema.json",
+            "templates/report_general.tex.j2",
+            "templates/report_medical_summary.tex.j2",
+            "templates/report_bill_explain.tex.j2",
+            "templates/report_claim_check.tex.j2",
+            "templates/report_timeline.tex.j2",
+            "templates/report_chronic_review.tex.j2",
+            "templates/report_clinic_client_summary.tex.j2",
+            "templates/styles.tex.j2",
+            "templates/cover.tex.j2",
+            "templates/tables.tex.j2",
+            "scripts/run_pipeline.py",
+            "scripts/init_vault.py",
+            "scripts/ingest_materials.py",
+            "scripts/classify_materials.py",
+            "scripts/normalize_markdown.py",
+            "scripts/extract_tables.py",
+            "scripts/latex_escape.py",
+            "scripts/markdown_to_latex.py",
+            "scripts/build_report.py",
+            "scripts/compile_pdf.py",
+            "scripts/render_pdf_pages.py",
+            "scripts/inspect_pdf_layout.py",
+            "scripts/update_local_db.py",
+            "adapters/einvault_mapper.py",
+            "adapters/einvault_exporter.py",
+            "adapters/paperless_importer.py",
+            "adapters/sqlite_store.py",
+            "references/petvault_ai_prd_v1_1.md",
+        ]
+        missing = [name for name in required if not (SKILL / name).exists()]
+        self.assertEqual([], missing)
+        self.assertTrue((ROOT / ".gitattributes").exists())
+        self.assertTrue((ROOT / ".github" / "workflows" / "ci.yml").exists())
+
+    def test_latex_style_inherits_reference_constraints(self):
+        styles = (SKILL / "templates" / "styles.tex.j2").read_text(encoding="utf-8")
+        for expected in [
+            r"\documentclass[UTF8,a4paper,11pt,fontset=windows]{ctexart}",
+            r"left=2.35cm",
+            r"right=2.35cm",
+            r"top=2.15cm",
+            r"bottom=2.20cm",
+            r"\linespread{1.28}",
+            r"\Large\bfseries",
+            r"\large\bfseries",
+            r"\normalsize\bfseries",
+            "longtable",
+        ]:
+            self.assertIn(expected, styles)
+
+    def test_pipeline_local_first_outputs_follow_harness(self):
+        output_dir, vault_dir = self._run_pipeline_case("claim_check", include_pdf_placeholder=True)
+        for path in HARNESS["required_files"]["report"]:
+            self.assertTrue((output_dir / path).exists(), path)
+        for path in HARNESS["required_files"]["vault"]:
+            self.assertTrue((vault_dir / path).exists(), path)
+
+        report_text = (output_dir / "report.md").read_text(encoding="utf-8")
+        for forbidden in HARNESS["forbidden_user_terms"]:
+            self.assertNotIn(forbidden, report_text)
+        for required in HARNESS["required_report_sections"]:
+            self.assertIn(required, report_text)
+        self.assertIn("不承诺理赔结果", report_text)
+        self.assertIn("费用明细", report_text)
+
+        index_data = json.loads((vault_dir / "structured" / "materials_index.json").read_text(encoding="utf-8"))
+        self._assert_schema_shape(index_data, MATERIAL_SCHEMA)
+
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self._assert_schema_shape(manifest, MANIFEST_SCHEMA)
+
+        qa_data = json.loads((output_dir / "qa_result.json").read_text(encoding="utf-8"))
+        self.assertTrue(qa_data["passed"], qa_data)
+        for dimension in [
+            "source_integrity",
+            "identity_consistency",
+            "visit_completeness",
+            "fee_explanation",
+            "insurance_boundary",
+            "timeline",
+            "pdf_readability",
+            "local_storage",
+        ]:
+            self.assertIn(dimension, qa_data["checks"])
+
+        with sqlite3.connect(vault_dir / "pet_vault.sqlite3") as conn:
+            self.assertEqual("ok", conn.execute("PRAGMA integrity_check").fetchone()[0])
+            self.assertGreaterEqual(conn.execute("SELECT COUNT(*) FROM materials").fetchone()[0], 3)
+            self.assertGreaterEqual(conn.execute("SELECT COUNT(*) FROM visits").fetchone()[0], 3)
+            self.assertEqual(1, conn.execute("SELECT COUNT(*) FROM reports").fetchone()[0])
+
+    def test_report_type_smoke_cases(self):
+        expectations = {
+            "general": ["综合整理摘要", "待确认"],
+            "medical_summary": ["一句话摘要", "建议向兽医确认的问题"],
+            "bill_explain": ["费用分类", "高额项目"],
+            "claim_check": ["已有材料", "不承诺理赔结果"],
+            "timeline": ["就诊时间线", "转诊摘要"],
+            "chronic_review": ["月度概览", "长期病情趋势"],
+            "clinic_client_summary": ["客户版解释草稿", "发送前需由医生或前台审核"],
+        }
+        for report_type, required_terms in expectations.items():
+            with self.subTest(report_type=report_type):
+                output_dir, _vault_dir = self._run_pipeline_case(report_type)
+                report_text = (output_dir / "report.md").read_text(encoding="utf-8")
+                for term in required_terms:
+                    self.assertIn(term, report_text)
+
+    def test_mixed_pet_warning_and_no_invention(self):
+        output_dir, _vault_dir = self._run_pipeline_case("timeline", mixed_pets=True)
+        report_text = (output_dir / "report.md").read_text(encoding="utf-8")
+        self.assertIn("发现多只宠物或不同名称混在同一批材料中", report_text)
+        self.assertNotIn("擅自补充", report_text)
+
+    def test_pdf_path_records_status_without_forcing_skip(self):
+        output_dir, _vault_dir = self._run_pipeline_case("medical_summary", skip_pdf_compile=False)
+        build_log = (output_dir / "build.log").read_text(encoding="utf-8")
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertIn(manifest["pdf_status"], {"compiled", "skipped", "failed"})
+        self.assertTrue(build_log.strip())
+        if shutil.which("xelatex") or shutil.which("latexmk"):
+            self.assertIn(manifest["pdf_status"], {"compiled", "failed"})
+        else:
+            self.assertEqual("skipped", manifest["pdf_status"])
+            self.assertIn("No xelatex or latexmk found", build_log)
+
+    def _assert_schema_shape(self, payload, schema):
+        for field in schema.get("required", []):
+            self.assertIn(field, payload)
+        properties = schema.get("properties", {})
+        for field, field_schema in properties.items():
+            if field not in payload:
+                continue
+            if field_schema.get("type") == "array" and "items" in field_schema and payload[field]:
+                sample = payload[field][0]
+                for nested_field in field_schema["items"].get("required", []):
+                    self.assertIn(nested_field, sample)
+            elif field_schema.get("type") == "object" and "required" in field_schema:
+                for nested_field in field_schema["required"]:
+                    self.assertIn(nested_field, payload[field])
+
+    def _run_pipeline_case(self, report_type, mixed_pets=False, skip_pdf_compile=True, include_pdf_placeholder=False):
+        TMP_ROOT.mkdir(parents=True, exist_ok=True)
+        tmpdir = TMP_ROOT / f"{report_type}_{uuid.uuid4().hex[:8]}"
+        input_dir = tmpdir / "materials"
+        output_dir = tmpdir / "out"
+        vault_dir = tmpdir / "vault"
+        input_dir.mkdir(parents=True)
+        (input_dir / "2026-07-05_mimi_bill.txt").write_text(
+            "\n".join(
+                [
+                    "宠物：Mimi",
+                    "日期：2026-07-05",
+                    "医院：星河动物医院",
+                    "项目：血常规 120 元；B超 350 元；处方药 86.5 元",
+                    "诉求：帮我看看账单和理赔材料是否够用。",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        (input_dir / "mimi_policy.txt").write_text(
+            "宠物保险保单：Mimi，等待期需核对，理赔通常需要发票、费用明细、处方、检查报告。",
+            encoding="utf-8",
+        )
+        other_pet = "Luna" if mixed_pets else "Mimi"
+        (input_dir / "mimi_lab.txt").write_text(
+            "\n".join(
+                [
+                    f"宠物：{other_pet}",
+                    "日期：2026-07-04",
+                    "医院：星河动物医院",
+                    "ALT 132 高",
+                    "CREA 1.9 高",
+                    "医生建议：一周后复查。",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        if include_pdf_placeholder:
+            (input_dir / "scan_result.pdf").write_bytes(b"%PDF-1.4\nplaceholder\n")
+
+        command = [
+            sys.executable,
+            str(SKILL / "scripts" / "run_pipeline.py"),
+            "--input",
+            str(input_dir),
+            "--output",
+            str(output_dir),
+            "--vault",
+            str(vault_dir),
+            "--report-type",
+            report_type,
+            "--pet-name",
+            "Mimi",
+        ]
+        if skip_pdf_compile:
+            command.append("--skip-pdf-compile")
+        result = subprocess.run(
+            command,
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            timeout=30,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        return output_dir, vault_dir
+
+
+if __name__ == "__main__":
+    unittest.main()

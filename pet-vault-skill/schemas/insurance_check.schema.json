@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Insurance Check",
+  "type": "object",
+  "properties": {
+    "existing_materials": {"type": "array", "items": {"type": "string"}},
+    "missing_materials": {"type": "array", "items": {"type": "string"}},
+    "risk_reminders": {"type": "array", "items": {"type": "string"}},
+    "outcome_promise": {"const": false}
+  }
+}

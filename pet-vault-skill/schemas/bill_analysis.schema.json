@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bill Analysis",
+  "type": "object",
+  "properties": {
+    "total_amount": {"type": ["number", "null"]},
+    "categories": {"type": "object"},
+    "high_value_items": {"type": "array", "items": {"type": "string"}},
+    "questions_to_confirm": {"type": "array", "items": {"type": "string"}}
+  }
+}

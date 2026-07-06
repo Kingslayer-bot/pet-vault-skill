@@ -1,0 +1,22 @@
+﻿{
+  "required_files": {
+    "report": ["report.md", "report.tex", "manifest.json", "qa_result.json", "build.log"],
+    "vault": ["pet_vault.sqlite3", "structured/materials_index.json"]
+  },
+  "required_report_sections": ["使用材料", "事实", "整理结果", "待确认", "后续建议"],
+  "forbidden_user_terms": ["PRD", "Harness", "HMW", "POV", "产品需求文档", "设计提案约束", "开发者校验"],
+  "must_not_claim": [
+    "replace_veterinarian_diagnosis",
+    "promise_insurance_reimbursement",
+    "judge_clinic_overcharging"
+  ],
+  "required_boundaries": {
+    "medical": "Organize and explain records, but do not replace a veterinarian.",
+    "insurance": "Check completeness and risk points, but do not promise claim outcomes.",
+    "billing": "Explain likely charge categories, but do not judge price fairness."
+  },
+  "validation_modes": {
+    "fast": "Run local text-first pipeline checks without requiring a TeX engine.",
+    "full": "Attempt PDF compilation when xelatex or latexmk is available."
+  }
+}

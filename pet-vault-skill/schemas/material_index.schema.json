@@ -1,0 +1,28 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PetVault Material Index",
+  "type": "object",
+  "required": ["materials", "created_at"],
+  "properties": {
+    "created_at": {"type": "string"},
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "pet_name", "clinic", "date", "source_file", "confidence", "status"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string"},
+          "pet_name": {"type": ["string", "null"]},
+          "clinic": {"type": ["string", "null"]},
+          "date": {"type": ["string", "null"]},
+          "source_file": {"type": "string"},
+          "raw_path": {"type": "string"},
+          "cleaned_markdown_path": {"type": "string"},
+          "confidence": {"type": "number"},
+          "status": {"type": "string"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Visit Event",
+  "type": "object",
+  "properties": {
+    "date": {"type": ["string", "null"]},
+    "clinic": {"type": ["string", "null"]},
+    "reason": {"type": ["string", "null"]},
+    "materials": {"type": "array", "items": {"type": "string"}},
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}

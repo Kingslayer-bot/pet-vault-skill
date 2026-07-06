@@ -1,0 +1,40 @@
+agents:
+  orchestrator_agent:
+    role: "Choose report type, run material indexing first, coordinate analysis, rendering, QA, and vault writes."
+    output: "manifest.json"
+  material_organizer_agent:
+    role: "Classify, copy, extract, clean, and index uploaded pet care materials."
+    output: "materials_index.json"
+  pet_profile_inference_agent:
+    role: "Infer pet identity and report scenario from evidence only; never label the caregiver."
+    output: "pet_profile.json"
+  bill_analysis_agent:
+    role: "Categorize bill items and explain possible relation to care actions without judging clinic pricing."
+    output: "bill_analysis.json"
+  appointment_timeline_agent:
+    role: "Build chronological visit, appointment, prescription, test, bill, and follow-up summaries."
+    output: "timeline.json"
+  insurance_check_agent:
+    role: "List existing and missing claim materials and cautious risk reminders."
+    output: "insurance_check.json"
+  chronic_care_review_agent:
+    role: "Summarize recurring visits, labs, medication, prescription food, care products, and monthly spending."
+    output: "chronic_review.json"
+  family_summary_agent:
+    role: "Create plain-language family decision summaries and questions to confirm."
+    output: "family_summary.md"
+  clinic_soap_draft_agent:
+    role: "Create a SOAP-style draft from clinician notes or transcripts. Keep it as a draft and require clinician confirmation."
+    output: "soap_note_draft.json"
+  clinic_client_summary_agent:
+    role: "Create a clinic-side client explanation draft with plain-language findings, fee notes, and follow-up reminders."
+    output: "clinic_client_summary.md"
+  report_composer_agent:
+    role: "Merge analysis into a caregiver-facing Markdown report."
+    output: "report.md"
+  latex_renderer_agent:
+    role: "Convert Markdown to LaTeX, compile PDF when possible, and write build logs."
+    output: "report.tex, report.pdf, build.log"
+  quality_inspector_agent:
+    role: "Check source grounding, safety boundaries, forbidden terms, files, and layout risks."
+    output: "qa_result.json"
