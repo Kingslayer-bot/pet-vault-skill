@@ -16,6 +16,7 @@ pet-vault-skill/
   prompts/
   schemas/
   scripts/
+  kb/
   templates/
   adapters/
   tests/
@@ -34,7 +35,7 @@ The runnable implementation in this repository still centers on the `Engine + C-
 
 ## Current Version
 
-- Repository version: `0.1.1`
+- Repository version: `0.1.2`
 - Product baseline: `PetVault AI PRD V1.1`
 - License: `MIT`
 
@@ -48,6 +49,8 @@ The runnable implementation in this repository still centers on the `Engine + C-
 - LaTeX `report.tex` using the required CTeX baseline
 - `manifest.json`, `qa_result.json`, and `build.log`
 - optional PDF compilation when local `xelatex` or `latexmk` is available
+- automatic report-type routing from request text and material types
+- curated local knowledge-base lookup for knowledge-only billing, claim, and record terminology questions
 - behavior tests for local storage, safety boundaries, report types, and harness-driven checks
 
 This first version provides real text ingestion for text-based materials. For PDF, DOCX, and image inputs, Phase 1 preserves the original file, creates an index entry, and marks the body text as pending confirmation rather than promising full OCR.
@@ -59,9 +62,9 @@ python pet-vault-skill/scripts/run_pipeline.py \
   --input path/to/materials \
   --output path/to/PetVault/reports/2026-07-06_Mimi_claim_check \
   --vault path/to/PetVault/vault \
-  --report-type claim_check \
+  --request "Check whether this claim packet has enough material" \
   --pet-name Mimi \
-  --skip-pdf-compile
+  --pdf-policy required
 ```
 
 More detailed usage, boundaries, and report-type documentation are in [`pet-vault-skill/README.md`](pet-vault-skill/README.md).

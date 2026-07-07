@@ -18,5 +18,10 @@
   "validation_modes": {
     "fast": "Run local text-first pipeline checks without requiring a TeX engine.",
     "full": "Attempt PDF compilation when xelatex or latexmk is available."
+  },
+  "pdf_policy": {
+    "attempt": "Compile PDF when a TeX engine is available; do not fail solely because TeX is missing.",
+    "required": "Treat missing report.pdf as a blocking issue for user-facing bill, payment, invoice, insurance, and claim deliverables.",
+    "skip": "Skip PDF compilation for fast tests while preserving Markdown, LaTeX, manifest, QA result, and build log."
   }
 }

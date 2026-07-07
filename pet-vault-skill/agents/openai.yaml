@@ -1,4 +1,4 @@
 interface:
   display_name: "Pet Vault Skill"
-  short_description: "Local-first pet care records and report generation."
-  default_prompt: "Use $pet-vault-skill to organize pet medical bills, visit records, insurance materials, prescriptions, and lab reports into a local PetVault archive and printable report."
+  short_description: "Local pet records, claim checks, bill PDFs, and KB answers."
+  default_prompt: "Use $pet-vault-skill to organize pet bills, insurance materials, visit records, prescriptions, and lab reports into a local PetVault archive/PDF report, or answer knowledge-only questions from its local KB."

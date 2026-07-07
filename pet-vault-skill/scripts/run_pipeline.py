@@ -19,6 +19,8 @@ def main() -> int:
         report_type=args.report_type,
         pet_name=args.pet_name,
         skip_pdf_compile=args.skip_pdf_compile,
+        request_text=args.request,
+        pdf_policy=args.pdf_policy,
     )
     return 0
 

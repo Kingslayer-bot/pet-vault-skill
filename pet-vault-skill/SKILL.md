@@ -1,6 +1,6 @@
 ---
 name: pet-vault-skill
-description: Use when organizing pet medical bills, veterinary reports, invoices, visit records, prescriptions, lab reports, insurance policies, claim documents, medication notes, companion profiles, or clinic-side explanation drafts into a local PetVault archive and a printable Markdown/LaTeX/PDF report.
+description: Use when organizing pet medical bills, payments, invoices, veterinary reports, visit records, prescriptions, lab reports, insurance policies, claim documents, medication notes, companion profiles, or clinic-side explanation drafts into a local PetVault archive and printable Markdown/LaTeX/PDF report. Also use for local knowledge-base answers about pet billing vocabulary, claim-material checklists, and record terminology when no user material needs a report.
 ---
 
 # Pet Vault Skill
@@ -11,39 +11,64 @@ Use this skill to power the local-first engine layer of PetVault AI. The current
 
 ## Core Rules
 
+- For bill, payment, invoice, insurance, reimbursement, or claim-package requests with user material, run the report workflow on the first response and provide the PDF path or attachment when compilation succeeds.
+- Keep chat responses short: one result sentence, the report path/PDF status, and at most three user-confirmation items. Put detailed explanation in `report.md` and `report.pdf`, not in the chat.
 - Keep reports user-facing. Do not expose internal terms such as PRD, Harness, HMW, POV, product requirement document, or developer validation.
+- Do not narrate internal agent roles, pipeline steps, QA implementation, database internals, or retry details to the user unless they explicitly ask for debugging information.
 - Base every factual claim on uploaded materials or explicit user-provided context.
 - Mark uncertain information with explicit uncertainty labels in the user's language.
 - Explain and organize bills, timelines, materials, and risks; do not replace veterinary diagnosis or treatment decisions.
 - Check insurance material completeness and risk points; do not promise claim outcomes.
+- Use the local KB for knowledge-only questions. Do not create vault/report files for pure knowledge questions without materials or report intent.
 - Store long-term data under `~/PetVault/vault/` and per-run report outputs under `~/PetVault/reports/`.
 - Preserve Markdown, LaTeX, manifest, QA result, and build log alongside any PDF.
 
 ## Quick Start
 
-Use the bundled Phase 1 runner when the user provides local files or asks for a printable report:
+Use the bundled Phase 1 runner when the user provides local files or asks for a printable report. `--report-type auto` is the default and uses `--request` plus material types to select `bill_explain`, `claim_check`, `timeline`, and other report types:
 
 ```bash
-python scripts/run_pipeline.py --input path/to/materials --output ~/PetVault/reports/2026-07-06_Mimi_claim_check --vault ~/PetVault/vault --report-type claim_check --pet-name Mimi
+python scripts/run_pipeline.py --input path/to/materials --output ~/PetVault/reports/2026-07-06_Mimi_bill_explain --vault ~/PetVault/vault --request "帮我解释这张账单" --pet-name Mimi --pdf-policy required
 ```
 
-Use `--skip-pdf-compile` when XeLaTeX or latexmk is unavailable. The runner still creates `report.md`, `report.tex`, `manifest.json`, `qa_result.json`, and a SQLite vault.
+Use `--pdf-policy required` for user-facing bill, payment, invoice, insurance, and claim-package deliverables when a PDF must be attached. Use `--skip-pdf-compile` only for fast validation or when a TeX engine is unavailable; the runner still creates `report.md`, `report.tex`, `manifest.json`, `qa_result.json`, and a SQLite vault.
+
+For knowledge-only questions without user materials:
+
+```bash
+python scripts/query_knowledge_base.py "理赔需要哪些材料" --limit 3
+```
 
 ## Workflow
 
-1. Clarify the report type if the user's request is ambiguous: `general`, `medical_summary`, `bill_explain`, `claim_check`, `timeline`, `chronic_review`, or `clinic_client_summary`.
+1. Route the request:
+   - Knowledge-only, no user material, no report/PDF/archive intent: query the local KB and answer briefly.
+   - Bill, payment, invoice, insurance, reimbursement, claim, or uploaded-material request: run the report workflow immediately.
+   - Ambiguous material request: ask one confirmation question rather than silently guessing.
 2. Run material organization first. Do not let later analysis agents re-parse raw files independently.
-3. Create `materials_index.json` with source file, material type, date, pet name, confidence, and extracted text path.
-4. Analyze in parallel only after the material index exists:
+3. Create `materials_index.json` with source file, material type, date, pet name, confidence, and extracted text path. Respect explicit `Material type:` hints and do not treat "policy not visible" as a policy document.
+4. Select `report_type` automatically when possible: `bill_explain`, `claim_check`, `timeline`, `medical_summary`, `chronic_review`, `clinic_client_summary`, or `general`. Save the selected type and routing reason in `manifest.json`; do not expose routing internals in chat.
+5. Analyze in parallel only after the material index exists:
    - bill explanation
    - visit timeline
    - insurance material check
    - chronic-care review
    - family summary
-5. Compose `report.md` with source list first, user-readable conclusions before details, and missing/uncertain data called out.
-6. Render LaTeX with the bundled templates. Use the reference style: `ctexart`, A4, 11pt, `fontset=windows`, 2.35 cm side margins, 2.15/2.20 cm vertical margins, and `\linespread{1.28}`.
-7. Compile PDF when a TeX engine is available, then inspect for missing file, empty file, obvious compile errors, forbidden report terms, and layout risk notes.
-8. Write structured data and report metadata into the SQLite vault.
+6. Compose `report.md` with source list first, user-readable conclusions before details, and missing/uncertain data called out.
+7. Render LaTeX with the bundled templates. Use the reference style: `ctexart`, A4, 11pt, `fontset=windows`, 2.35 cm side margins, 2.15/2.20 cm vertical margins, and `\linespread{1.28}`.
+8. Compile PDF when a TeX engine is available. With `--pdf-policy required`, missing `report.pdf` is a blocking QA issue.
+9. Inspect for missing files, empty PDF, obvious compile errors, forbidden report terms, billing extraction gaps, and layout risk notes.
+10. Write structured data and report metadata into the SQLite vault after QA, including `pdf_status` and `qa_status`.
+
+## Chat Output Policy
+
+For report requests, the user-visible answer should be compact:
+
+- State the report type and whether PDF compilation succeeded.
+- Link or attach `report.pdf`; if missing, link `report.md`/`report.tex` and state the blocker.
+- List at most three urgent missing/uncertain items.
+
+Do not paste the full report into chat unless the user explicitly asks. Do not expose implementation details such as material index creation, SQLite probes, LaTeX retries, agent names, or QA internals.
 
 ## Report Types
 
@@ -77,6 +102,20 @@ Use `--skip-pdf-compile` when XeLaTeX or latexmk is unavailable. The runner stil
         +-- build.log
 ```
 
+The skill also contains a small local knowledge base:
+
+```text
+kb/
++-- articles/
+|   +-- claim-packet-us.md
+|   +-- billing-line-items.md
+|   +-- nutrition-prescription-food.md
+|   +-- toxin-emergency-boundary.md
++-- sources.yaml
+```
+
+Read `references/local_knowledge_base.md` when extending crawl targets, schemas, or KB routing. Keep authoritative source URLs, retrieval/update dates, jurisdiction, topic, and risk level with each article. Use Markdown as the source of truth; any SQLite/FTS index must be rebuildable.
+
 ## Bundled Resources
 
 - `scripts/run_pipeline.py`: end-to-end Phase 1 pipeline.
@@ -90,9 +129,13 @@ Use `--skip-pdf-compile` when XeLaTeX or latexmk is unavailable. The runner stil
 - `scripts/build_report.py`: compose the caregiver-facing Markdown report, plus B-side demo summaries when requested.
 - `scripts/compile_pdf.py`: compile with XeLaTeX or latexmk when available.
 - `scripts/inspect_pdf_layout.py`: check generated report artifacts and obvious layout risks.
+- `scripts/query_knowledge_base.py`: search curated local KB articles for knowledge-only questions.
+- `scripts/quick_validate.py`: validate the skill package, required resources, and CLI entrypoints.
 - `config/*.yaml`: agent roles, material types, safety rules, report checks, and LaTeX layout constraints.
 - `schemas/*.json`: JSON schemas for generated indexes and QA data.
 - `templates/*.tex.j2`: LaTeX report templates.
+- `kb/articles/*.md` and `kb/sources.yaml`: curated local knowledge base and crawl allowlist.
+- `references/local_knowledge_base.md`: KB routing, crawl scope, and storage guidance.
 - `references/petvault_ai_prd_v1_1.md`: product-level scope and V1.1 alignment notes for C-side, B-side, and engine boundaries.
 
 ## Agent Roles
@@ -124,6 +167,9 @@ Before finishing, verify:
 - `manifest.json`, `qa_result.json`, `materials_index.json`, and `pet_vault.sqlite3` exist.
 - `report.tex` follows the bundled LaTeX layout.
 - PDF compile or skip status is recorded in `build.log`.
+- For `--pdf-policy required`, missing `report.pdf` blocks QA.
+- `manifest.json` report type, `materials_index.json`, and SQLite records agree for the final report.
+- Knowledge-only answers cite local KB `article_id`/source URL and do not create report artifacts.
 
 ## Common Mistakes
 
@@ -131,4 +177,5 @@ Before finishing, verify:
 - Filling missing pet, clinic, policy, or diagnosis information from assumptions. Mark it as missing.
 - Treating bill explanation as a price fairness judgment. Explain categories and ask-for-confirmation items instead.
 - Producing only a PDF. Keep the Markdown, LaTeX, manifest, QA result, and vault data.
-
+- Dumping full bill explanations into chat when a report PDF should carry the detail.
+- Letting a generic insurance word in a bill transcription override explicit invoice/bill evidence.

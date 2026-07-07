@@ -9,6 +9,17 @@
     "report_type": {"type": "string"},
     "created_at": {"type": "string"},
     "pdf_status": {"type": "string"},
+    "pdf_policy": {"type": "string"},
+    "routing": {
+      "type": "object",
+      "required": ["requested_report_type", "selected_report_type", "reason", "request_text_present"],
+      "properties": {
+        "requested_report_type": {"type": "string"},
+        "selected_report_type": {"type": "string"},
+        "reason": {"type": "string"},
+        "request_text_present": {"type": "boolean"}
+      }
+    },
     "materials": {
       "type": "array",
       "items": {

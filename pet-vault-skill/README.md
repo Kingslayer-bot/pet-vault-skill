@@ -8,6 +8,8 @@
 
 - Implemented and runnable: local ingestion, material indexing, baseline classification, Markdown report generation, LaTeX rendering, and SQLite persistence.
 - Implemented and tested: `general`, `medical_summary`, `bill_explain`, `claim_check`, `timeline`, `chronic_review`, and `clinic_client_summary` outputs.
+- Implemented: automatic report-type routing from request text and material type, with first-pass PDF-oriented handling for bill, payment, invoice, insurance, and claim requests.
+- Implemented: a small curated local knowledge base for knowledge-only questions about billing vocabulary, claim packets, nutrition boundaries, and emergency escalation.
 - Explicitly reserved, not fully implemented: OCR, image body extraction, follow-up Q&A loop, B-side voice-to-SOAP flow, and a full hospital admin platform.
 
 ## Goals
@@ -40,12 +42,18 @@ python pet-vault-skill/scripts/run_pipeline.py \
   --input path/to/materials \
   --output path/to/PetVault/reports/2026-07-06_Mimi_claim_check \
   --vault path/to/PetVault/vault \
-  --report-type claim_check \
+  --request "Check whether this claim packet has enough material" \
   --pet-name Mimi \
-  --skip-pdf-compile
+  --pdf-policy required
 ```
 
-Remove `--skip-pdf-compile` only when a local TeX engine is available.
+`--report-type` defaults to `auto`. Use `--skip-pdf-compile` only for fast tests or machines without a local TeX engine.
+
+Knowledge-only query:
+
+```bash
+python pet-vault-skill/scripts/query_knowledge_base.py "What materials do pet insurance claims usually need?"
+```
 
 ## Safety Boundaries
 

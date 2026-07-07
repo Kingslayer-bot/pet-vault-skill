@@ -8,6 +8,8 @@
 
 - 已实现并可运行：本地资料导入、材料索引、基础分类、Markdown 报告、LaTeX 渲染、SQLite 落库。
 - 已实现并经过测试：`general`、`medical_summary`、`bill_explain`、`claim_check`、`timeline`、`chronic_review`、`clinic_client_summary` 七类输出。
+- 已实现：根据用户原话和材料类型自动选择报告类型；账单、付费、发票、保险、理赔类请求可首轮按 PDF 交付策略执行。
+- 已实现：用于知识性问询的小型本地知识库，覆盖账单项目、理赔材料包、营养/处方粮边界和紧急风险分流。
 - 明确保留但未完整实现：OCR、图片正文抽取、AI 追问闭环、B 端语音转病历、完整医院后台。
 
 ## 目标
@@ -40,12 +42,18 @@ python pet-vault-skill/scripts/run_pipeline.py ^
   --input path/to/materials ^
   --output path/to/PetVault/reports/2026-07-06_Mimi_claim_check ^
   --vault path/to/PetVault/vault ^
-  --report-type claim_check ^
+  --request "帮我检查理赔材料够不够" ^
   --pet-name Mimi ^
-  --skip-pdf-compile
+  --pdf-policy required
 ```
 
-如果本机具备 LaTeX 环境，可以去掉 `--skip-pdf-compile`，让脚本尝试生成 `report.pdf`。如果没有 TeX 引擎，脚本会在 `build.log` 中写明跳过原因。
+`--report-type` 默认是 `auto`。如果本机具备 LaTeX 环境，可以使用 `--pdf-policy required` 要求生成 `report.pdf`；如果只是快速测试或本机没有 TeX 引擎，可以加 `--skip-pdf-compile`，脚本会在 `build.log` 中写明跳过原因。
+
+知识性问询：
+
+```bash
+python pet-vault-skill/scripts/query_knowledge_base.py "理赔需要哪些材料"
+```
 
 ## 报告类型
 

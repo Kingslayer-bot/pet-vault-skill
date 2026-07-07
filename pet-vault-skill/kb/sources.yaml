@@ -1,0 +1,25 @@
+sources:
+  - id: naic_pet_insurance
+    url: "https://content.naic.org/insurance-topics/pet-insurance"
+    topic: "insurance"
+    jurisdiction: "US"
+    crawl_scope: "Pet insurance concepts, disclosures, waiting periods, exclusions, and consumer-facing claim terminology."
+    use_boundary: "Use for general claim-material and policy-check education only; never infer coverage for a specific policy."
+  - id: wsava_nutrition_guidelines
+    url: "https://wsava.org/global-guidelines/global-nutrition-guidelines/"
+    topic: "nutrition"
+    jurisdiction: "global"
+    crawl_scope: "Nutrition toolkit, diet history, body condition, feeding guides, and owner-facing food label resources."
+    use_boundary: "Use to generate questions for the veterinarian, not diagnosis or prescription-food instructions."
+  - id: fda_animal_veterinary
+    url: "https://www.fda.gov/animal-veterinary"
+    topic: "drug_food_safety"
+    jurisdiction: "US"
+    crawl_scope: "Animal drugs, pet food, recalls, safety alerts, and consumer reporting resources."
+    use_boundary: "Use for safety-resource routing and recall/source awareness; do not provide treatment instructions."
+  - id: aspca_poison_control
+    url: "https://www.aspca.org/pet-care/aspca-poison-control"
+    topic: "emergency"
+    jurisdiction: "US"
+    crawl_scope: "Animal poison control contact, toxin category pages, and emergency escalation language."
+    use_boundary: "Use for emergency escalation only; no home treatment, dosing, or wait-and-see advice."

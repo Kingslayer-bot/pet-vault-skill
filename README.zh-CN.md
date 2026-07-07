@@ -16,6 +16,7 @@ pet-vault-skill/
   prompts/
   schemas/
   scripts/
+  kb/
   templates/
   adapters/
   tests/
@@ -34,7 +35,7 @@ pet-vault-skill/
 
 ## 当前版本
 
-- 仓库版本：`0.1.1`
+- 仓库版本：`0.1.2`
 - 产品基线：`PetVault AI PRD V1.1`
 - 协议：`MIT`
 
@@ -48,6 +49,8 @@ pet-vault-skill/
 - 使用指定 CTeX 基线生成 `report.tex`
 - `manifest.json`、`qa_result.json`、`build.log`
 - 在本机具备 `xelatex` 或 `latexmk` 时可选编译 PDF
+- 根据用户原话和材料类型自动选择报告类型
+- 为纯知识问询提供本地知识库检索
 - 覆盖本地存储、安全边界、报告类型与 harness 约束的行为测试
 
 当前第一版对文本类材料提供真实读取能力。对于 PDF、DOCX、图片等输入，Phase 1 默认保留原件、建立索引，并将正文标记为待确认，而不是承诺完整 OCR。
@@ -59,9 +62,9 @@ python pet-vault-skill/scripts/run_pipeline.py ^
   --input path/to/materials ^
   --output path/to/PetVault/reports/2026-07-06_Mimi_claim_check ^
   --vault path/to/PetVault/vault ^
-  --report-type claim_check ^
+  --request "帮我检查理赔材料够不够" ^
   --pet-name Mimi ^
-  --skip-pdf-compile
+  --pdf-policy required
 ```
 
 更详细的用法、边界和报告类型说明见 [`pet-vault-skill/README.zh-CN.md`](pet-vault-skill/README.zh-CN.md)。

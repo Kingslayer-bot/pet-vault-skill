@@ -1,6 +1,6 @@
 material_types:
   bill:
-    labels: ["账单", "费用", "收费", "bill", "expense"]
+    labels: ["账单", "费用", "收费", "付款", "付费", "bill", "expense", "charge", "payment"]
     raw_folder: "bills"
   invoice:
     labels: ["发票", "收据", "invoice", "receipt"]
@@ -18,7 +18,7 @@ material_types:
     labels: ["处方", "药", "用药", "prescription", "medication"]
     raw_folder: "prescriptions"
   insurance_policy:
-    labels: ["保单", "保险", "policy"]
+    labels: ["保单", "保险", "免赔额", "等待期", "policy", "coverage", "deductible", "waiting period"]
     raw_folder: "policies"
   claim_document:
     labels: ["理赔", "报销", "claim"]
