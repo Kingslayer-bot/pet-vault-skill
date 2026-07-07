@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PetVault Bill Line",
+  "type": "object",
+  "required": ["bill_line_id", "material_id", "raw_text", "line_number", "amount", "currency", "category", "confidence", "evidence_span"],
+  "properties": {
+    "bill_line_id": {"type": "string"},
+    "material_id": {"type": "string"},
+    "raw_text": {"type": "string"},
+    "line_number": {"type": "integer", "minimum": 1},
+    "date": {"type": ["string", "null"]},
+    "description": {"type": ["string", "null"]},
+    "amount": {"type": "number"},
+    "currency": {"enum": ["USD", "CNY", "RMB", "HKD", "SGD", "JPY", "UNKNOWN"]},
+    "quantity": {"type": ["number", "null"]},
+    "category": {
+      "enum": ["exam", "consultation", "emergency_fee", "bloodwork", "urinalysis", "radiology", "ultrasound", "hospitalization", "iv_fluids", "anesthesia", "surgery", "medication", "injection", "prescription_diet", "disposal_fee", "admin_fee", "tax", "payment", "discount", "refund", "unknown"]
+    },
+    "is_charge": {"type": "boolean"},
+    "is_payment": {"type": "boolean"},
+    "is_discount": {"type": "boolean"},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "evidence_span": {"type": "string"}
+  }
+}

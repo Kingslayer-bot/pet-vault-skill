@@ -1,0 +1,43 @@
+bill_report:
+  triggers:
+    material_types: [invoice, payment_record]
+    intents: [explain_bill, cost_breakdown, reimbursement, "被坑", "为什么这么贵"]
+  output:
+    chat: concise_summary
+    pdf: required
+    vault_update: true
+
+insurance_precheck:
+  triggers:
+    material_types: [invoice, insurance_policy, claim_form, rejection_letter]
+    intents: [claim, reimbursement, "能不能报销", "理赔"]
+  output:
+    chat: concise_summary
+    pdf: required
+    legal_judgment: forbidden
+    vault_update: true
+
+knowledge_query:
+  triggers:
+    no_user_material: true
+    intents: [term_explanation, general_pet_knowledge]
+  output:
+    chat: short_answer_with_sources
+    pdf: not_required
+
+emergency_boundary:
+  triggers:
+    terms: [poison, toxin, lily, xylitol, chocolate, seizure, breathing difficulty, unable to urinate, 百合, 木糖醇, 巧克力, 抽搐, 呼吸困难, 无法排尿]
+  output:
+    chat: urgent_safety_response
+    pdf: forbidden_unless_after_action_summary
+    diagnosis: forbidden
+
+timeline_update:
+  triggers:
+    material_types: [medical_record, lab_report, imaging_report, chat_record]
+    intents: [history, timeline, archive, "整理病史"]
+  output:
+    chat: concise_summary
+    pdf: required
+    vault_update: true

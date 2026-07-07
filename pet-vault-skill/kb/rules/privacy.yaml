@@ -1,0 +1,18 @@
+storage:
+  default: local_forever
+  user_can_delete: true
+  redact_exports: true
+
+sensitive_fields:
+  - owner_name
+  - phone
+  - address
+  - email
+  - policy_number
+  - claim_number
+  - payment_info
+  - clinic_account_number
+
+logs:
+  store_raw_material_text: false
+  store_debug_snippets: false

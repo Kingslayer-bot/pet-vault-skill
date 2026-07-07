@@ -1,0 +1,12 @@
+- input: "Exam $80.00"
+  expected_currency: USD
+  expected_kind: charge
+- input: "CareCredit Payment -$80.00"
+  expected_currency: USD
+  expected_kind: payment
+- input: "检查费 ¥300.00"
+  expected_currency: CNY
+  expected_kind: charge
+- input: "HKD 300"
+  expected_currency: HKD
+  expected_kind: charge

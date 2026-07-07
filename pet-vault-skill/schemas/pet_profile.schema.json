@@ -1,14 +1,33 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Pet Profile",
+  "title": "PetVault Pet Profile",
   "type": "object",
+  "required": ["pet_id", "name", "species", "created_at", "updated_at"],
   "properties": {
-    "pet_name": {"type": ["string", "null"]},
-    "species": {"type": ["string", "null"]},
+    "pet_id": {"type": "string"},
+    "name": {"type": "string"},
+    "species": {"enum": ["dog", "cat", "other", "unknown"]},
     "breed": {"type": ["string", "null"]},
-    "age": {"type": ["string", "null"]},
-    "sex": {"type": ["string", "null"]},
-    "neutered": {"type": ["string", "null"]},
-    "uncertain_fields": {"type": "array", "items": {"type": "string"}}
+    "sex": {"enum": ["male", "female", "unknown"]},
+    "neutered": {"type": ["boolean", "null"]},
+    "birth_date": {"type": ["string", "null"]},
+    "weight_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "weight"],
+        "properties": {
+          "date": {"type": "string"},
+          "weight": {"type": "number"},
+          "unit": {"enum": ["kg", "lb"]}
+        }
+      }
+    },
+    "known_conditions": {"type": "array", "items": {"type": "string"}},
+    "allergies": {"type": "array", "items": {"type": "string"}},
+    "microchip_id": {"type": ["string", "null"]},
+    "owner_notes": {"type": ["string", "null"]},
+    "created_at": {"type": "string"},
+    "updated_at": {"type": "string"}
   }
 }

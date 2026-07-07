@@ -1,0 +1,45 @@
+domains:
+  - billing
+  - insurance
+  - medical
+  - nutrition
+  - safety
+  - jurisdiction
+
+jurisdictions:
+  p0: [US, CN]
+  p1: [HK, SG, JP]
+  global: [global]
+
+languages:
+  p0: [zh, en]
+  p1: [zh-Hant, ja, ko, th]
+
+currencies:
+  p0: [USD, CNY, RMB]
+  p1: [HKD, SGD, JPY]
+
+bill_categories:
+  - exam
+  - emergency_fee
+  - diagnostic
+  - imaging
+  - hospitalization
+  - iv_fluids
+  - anesthesia
+  - surgery
+  - medication
+  - injection
+  - prescription_diet
+  - disposal_fee
+  - admin_fee
+  - tax
+  - payment
+  - discount
+  - refund
+  - unknown
+
+boundaries:
+  billing: "Separate charge, payment, discount, refund, and tax. Unknown items stay unknown."
+  insurance: "Conditional precheck only. No coverage guarantees, legal judgment, fraud help, or product recommendation."
+  medical: "Explain terms and red flags only. No diagnosis, prescribing, or advice to stop veterinary care."

@@ -55,6 +55,31 @@ Knowledge-only query:
 python pet-vault-skill/scripts/query_knowledge_base.py "What materials do pet insurance claims usually need?"
 ```
 
+## Local Knowledge Hub
+
+The bundled KB has been expanded into the first-version **PetVault local knowledge hub**.
+
+- `kb/sources.yaml` records source IDs, jurisdiction, language, tier, allowed use, forbidden use, and verification status.
+- `kb/articles/**` stores Markdown knowledge cards with YAML frontmatter for billing, insurance, medical, safety, and jurisdiction topics.
+- `kb/rules/**` defines routing, PDF triggers, billing validation, insurance guardrails, medical safety, and privacy policy.
+- `schemas/*` includes policy harness, claim case, medical timeline, bill line, material, KB card, and evidence-chain schemas.
+- `scripts/build_kb_index.py` builds a rebuildable SQLite FTS index at `kb/index/kb.sqlite`.
+- `scripts/validate_kb.py`, `validate_billing.py`, and `validate_insurance_output.py` provide regression checks.
+
+Routing policy: bill, payment, invoice, insurance policy, claim form, rejection letter, medical record, lab report, imaging report, and timeline work requires a concise chat summary plus PDF report. Pure term explanations use short local-KB answers. Toxin or red-flag emergency questions trigger safety-boundary language before ordinary KB answering.
+
+P0 scope is `US` and `CN`, with `USD`, `CNY`, and `RMB`; `HKD`, `SGD`, and `JPY` are recognized as P1 currencies. Insurance answers must stay conditional. Medical answers may explain terms and urgent red flags, but must not diagnose, prescribe, or tell users to stop care. User materials belong in the local vault, not in `kb/`.
+
+Commands:
+
+```bash
+python pet-vault-skill/scripts/validate_kb.py pet-vault-skill
+python pet-vault-skill/scripts/build_kb_index.py pet-vault-skill
+python pet-vault-skill/scripts/query_knowledge_base.py "等待期是什么意思" --domain insurance --jurisdiction US --language zh --limit 3
+python pet-vault-skill/scripts/validate_billing.py pet-vault-skill
+python pet-vault-skill/scripts/validate_insurance_output.py pet-vault-skill
+```
+
 ## Safety Boundaries
 
 - Do not replace veterinary diagnosis.

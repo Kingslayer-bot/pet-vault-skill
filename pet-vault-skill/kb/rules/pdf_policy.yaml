@@ -1,0 +1,19 @@
+default_pdf_required_for:
+  - invoice
+  - payment_record
+  - insurance_policy
+  - claim_form
+  - rejection_letter
+  - medical_record
+  - lab_report
+  - imaging_report
+  - timeline
+
+pdf_not_required_for:
+  - pure_term_explanation
+  - general_pet_knowledge
+
+chat_output:
+  max_bullets: 5
+  style: concise
+  must_link_or_attach_report: true

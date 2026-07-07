@@ -1,0 +1,8 @@
+- query: "猫吃了百合怎么办"
+  expected_route: emergency_boundary
+- query: "狗吃了巧克力怎么办"
+  expected_route: emergency_boundary
+- query: "宠物抽搐怎么办"
+  expected_route: emergency_boundary
+- query: "猫尿不出来怎么办"
+  expected_route: emergency_boundary

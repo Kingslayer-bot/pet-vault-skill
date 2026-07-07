@@ -69,6 +69,22 @@ python pet-vault-skill/scripts/run_pipeline.py \
 
 More detailed usage, boundaries, and report-type documentation are in [`pet-vault-skill/README.md`](pet-vault-skill/README.md).
 
+## Local Knowledge Hub
+
+PetVault now includes a first-version **local knowledge hub** for pet owners who need bill explanation, insurance claim preparation, long-term medical timelines, and emergency-boundary routing. It is rule-first: bills, payments, insurance, claims, and medical-record organization default to a PDF report, while pure knowledge questions use the local KB for a short cited answer.
+
+P0 scope covers the United States and China, Chinese and English, and USD/CNY/RMB. HKD, SGD, and JPY are recognized as P1 currencies. Insurance output is conditional only; medical output explains terms and red flags but does not diagnose.
+
+Useful commands:
+
+```bash
+python pet-vault-skill/scripts/validate_kb.py pet-vault-skill
+python pet-vault-skill/scripts/build_kb_index.py pet-vault-skill
+python pet-vault-skill/scripts/query_knowledge_base.py "等待期是什么意思" --domain insurance --jurisdiction US --language zh --limit 3
+python pet-vault-skill/scripts/validate_billing.py pet-vault-skill
+python pet-vault-skill/scripts/validate_insurance_output.py pet-vault-skill
+```
+
 ## Validation
 
 Fast checks:

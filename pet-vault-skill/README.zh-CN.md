@@ -55,6 +55,31 @@ python pet-vault-skill/scripts/run_pipeline.py ^
 python pet-vault-skill/scripts/query_knowledge_base.py "理赔需要哪些材料"
 ```
 
+## 本地知识中台
+
+仓库内置 KB 已扩展为第一版 **PetVault 本地知识中台**。
+
+- `kb/sources.yaml` 记录来源 ID、地区、语言、来源等级、允许用途、禁止用途和是否需要核验。
+- `kb/articles/**` 用 Markdown + YAML frontmatter 存放账单、保险、医疗、安全和地区知识卡。
+- `kb/rules/**` 定义路由、PDF 触发、账单金额核验、保险边界、医疗安全和隐私策略。
+- `schemas/*` 包含保单 harness、理赔案件、长期病历、账单行、材料、知识卡和证据链 schema。
+- `scripts/build_kb_index.py` 在 `kb/index/kb.sqlite` 构建可重建 SQLite FTS 索引。
+- `scripts/validate_kb.py`、`validate_billing.py`、`validate_insurance_output.py` 提供回归验证。
+
+路由策略：账单、付款、发票、保单、理赔表、拒赔信、病历、化验、影像和 timeline 默认输出简洁聊天摘要 + PDF；纯术语解释走本地 KB 短答；中毒或急症红线问题先触发安全边界。
+
+第一版 P0 地区是 `US`、`CN`，P0 货币是 `USD`、`CNY`、`RMB`；`HKD`、`SGD`、`JPY` 作为 P1 基础识别。保险回答只能做条件性预检，不能承诺理赔结果。医学回答只能解释术语和红线，不能诊断、开药或建议停止治疗。用户私有材料进入本地 vault，不进入 `kb/`。
+
+命令示例：
+
+```bash
+python pet-vault-skill/scripts/validate_kb.py pet-vault-skill
+python pet-vault-skill/scripts/build_kb_index.py pet-vault-skill
+python pet-vault-skill/scripts/query_knowledge_base.py "等待期是什么意思" --domain insurance --jurisdiction US --language zh --limit 3
+python pet-vault-skill/scripts/validate_billing.py pet-vault-skill
+python pet-vault-skill/scripts/validate_insurance_output.py pet-vault-skill
+```
+
 ## 报告类型
 
 | 类型 | 适用场景 |

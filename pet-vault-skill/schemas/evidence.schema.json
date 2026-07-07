@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PetVault Evidence Chain",
+  "type": "object",
+  "required": ["claim", "evidence", "kb_sources", "confidence", "uncertainty"],
+  "properties": {
+    "claim": {"type": "string"},
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["material_id", "line", "raw_text"],
+        "properties": {
+          "material_id": {"type": "string"},
+          "line": {"type": "integer"},
+          "raw_text": {"type": "string"}
+        }
+      }
+    },
+    "kb_sources": {"type": "array", "items": {"type": "string"}},
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "uncertainty": {"type": "array", "items": {"type": "string"}}
+  }
+}

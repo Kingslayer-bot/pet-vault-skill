@@ -10,3 +10,7 @@ outputs/
 *.toc
 *.fls
 *.fdb_latexmk
+*.sqlite
+*.sqlite3-shm
+*.sqlite3-wal
+pet-vault-skill/kb/index/*.sqlite

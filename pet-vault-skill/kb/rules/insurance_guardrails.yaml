@@ -1,0 +1,16 @@
+forbidden_claims:
+  - 一定能赔
+  - 一定不能赔
+  - guarantee_coverage
+  - deny_coverage_definitively
+  - legal_judgment
+  - recommend_insurance_product
+  - help_falsify_records
+  - help_hide_preexisting_condition
+
+allowed_claims:
+  - conditional_precheck
+  - missing_document_checklist
+  - policy_term_explanation
+  - reimbursement_estimate_with_disclaimer
+  - insurer_questions

@@ -69,6 +69,22 @@ python pet-vault-skill/scripts/run_pipeline.py ^
 
 更详细的用法、边界和报告类型说明见 [`pet-vault-skill/README.zh-CN.md`](pet-vault-skill/README.zh-CN.md)。
 
+## 本地知识中台
+
+PetVault 现在包含第一版 **本地知识中台**，面向需要看懂宠物医疗账单、准备保险理赔、整理长期病历和识别急症边界的宠物主人。它采用规则优先：账单、付款、保险、理赔、病历整理默认生成 PDF 报告；纯知识问题才走本地 KB 短答。
+
+第一版 P0 范围覆盖美国和中国、中文和英文、USD/CNY/RMB。HKD、SGD、JPY 作为 P1 货币做基础识别。保险输出只做条件性预检，不承诺理赔结果；医学输出只解释术语和红线，不做诊断。
+
+常用命令：
+
+```bash
+python pet-vault-skill/scripts/validate_kb.py pet-vault-skill
+python pet-vault-skill/scripts/build_kb_index.py pet-vault-skill
+python pet-vault-skill/scripts/query_knowledge_base.py "等待期是什么意思" --domain insurance --jurisdiction US --language zh --limit 3
+python pet-vault-skill/scripts/validate_billing.py pet-vault-skill
+python pet-vault-skill/scripts/validate_insurance_output.py pet-vault-skill
+```
+
 ## 验证
 
 快速检查：

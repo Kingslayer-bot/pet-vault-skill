@@ -1,0 +1,16 @@
+forbidden:
+  - diagnose
+  - prescribe
+  - tell_user_to_stop_medication
+  - say_no_vet_needed_for_red_flag
+  - downplay_emergency
+
+red_flags:
+  - toxin_ingestion
+  - breathing_difficulty
+  - seizure
+  - unable_to_urinate
+  - persistent_vomiting
+  - severe_trauma
+  - collapse
+  - suspected_foreign_body

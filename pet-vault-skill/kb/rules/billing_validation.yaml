@@ -1,0 +1,16 @@
+amount_validation:
+  supported_currencies:
+    p0: [USD, CNY, RMB]
+    p1: [HKD, SGD, JPY]
+  separate:
+    - charge
+    - payment
+    - discount
+    - refund
+    - tax
+  fail_conditions:
+    - payment_counted_as_charge
+    - discount_counted_as_charge
+    - refund_counted_as_charge
+    - currency_unknown_when_amount_present
+    - total_mismatch_without_warning

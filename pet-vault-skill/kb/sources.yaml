@@ -1,25 +1,157 @@
 sources:
-  - id: naic_pet_insurance
-    url: "https://content.naic.org/insurance-topics/pet-insurance"
-    topic: "insurance"
-    jurisdiction: "US"
-    crawl_scope: "Pet insurance concepts, disclosures, waiting periods, exclusions, and consumer-facing claim terminology."
-    use_boundary: "Use for general claim-material and policy-check education only; never infer coverage for a specific policy."
-  - id: wsava_nutrition_guidelines
-    url: "https://wsava.org/global-guidelines/global-nutrition-guidelines/"
-    topic: "nutrition"
-    jurisdiction: "global"
-    crawl_scope: "Nutrition toolkit, diet history, body condition, feeding guides, and owner-facing food label resources."
-    use_boundary: "Use to generate questions for the veterinarian, not diagnosis or prescription-food instructions."
-  - id: fda_animal_veterinary
+  - id: naic-pet-insurance-model-act
+    name: NAIC Pet Insurance Model Act and topic resources
+    url: "https://content.naic.org/sites/default/files/model-law-633.pdf"
+    jurisdiction: US
+    language: en
+    source_tier: Tier 1
+    domains: [insurance, jurisdiction]
+    last_reviewed: 2026-07-07
+    notes: "Pet insurance disclosures, waiting periods, pre-existing condition language, wellness distinction, and consumer protections."
+    allowed_use: "Explain US pet insurance terms and policy-check points."
+    forbidden_use: "Do not infer final claim outcomes or provide legal judgment."
+    needs_verification: true
+
+  - id: naphia-industry-data
+    name: North American Pet Health Insurance Association
+    url: "https://naphia.org/"
+    jurisdiction: US
+    language: en
+    source_tier: Tier 2
+    domains: [insurance]
+    last_reviewed: 2026-07-07
+    notes: "Industry context and insurance type vocabulary."
+    allowed_use: "Explain insurance product categories at a high level."
+    forbidden_use: "Do not recommend specific insurance products."
+    needs_verification: true
+
+  - id: avma-owner-records-ethics
+    name: American Veterinary Medical Association owner and ethics resources
+    url: "https://www.avma.org/resources-tools/avma-policies/principles-veterinary-medical-ethics-avma"
+    jurisdiction: US
+    language: en
+    source_tier: Tier 1
+    domains: [medical, jurisdiction]
+    last_reviewed: 2026-07-07
+    notes: "Veterinary ethics, record ownership and client communication principles."
+    allowed_use: "Explain why owners may need to request record copies."
+    forbidden_use: "Do not provide legal advice about a specific dispute."
+    needs_verification: true
+
+  - id: fda-animal-veterinary
+    name: FDA Animal and Veterinary
     url: "https://www.fda.gov/animal-veterinary"
-    topic: "drug_food_safety"
-    jurisdiction: "US"
-    crawl_scope: "Animal drugs, pet food, recalls, safety alerts, and consumer reporting resources."
-    use_boundary: "Use for safety-resource routing and recall/source awareness; do not provide treatment instructions."
-  - id: aspca_poison_control
+    jurisdiction: US
+    language: en
+    source_tier: Tier 1
+    domains: [medical, nutrition, safety]
+    last_reviewed: 2026-07-07
+    notes: "Animal drugs, pet food, recalls, and safety information."
+    allowed_use: "Explain food/drug safety context and source routing."
+    forbidden_use: "Do not provide treatment instructions."
+    needs_verification: true
+
+  - id: aspca-poison-control
+    name: ASPCA Animal Poison Control Center
     url: "https://www.aspca.org/pet-care/aspca-poison-control"
-    topic: "emergency"
-    jurisdiction: "US"
-    crawl_scope: "Animal poison control contact, toxin category pages, and emergency escalation language."
-    use_boundary: "Use for emergency escalation only; no home treatment, dosing, or wait-and-see advice."
+    jurisdiction: US
+    language: en
+    source_tier: Tier 3
+    domains: [safety]
+    last_reviewed: 2026-07-07
+    notes: "Poison hotline and emergency escalation source."
+    allowed_use: "Route toxin questions to urgent veterinary or poison-control contact."
+    forbidden_use: "No home dosing, treatment, or wait-and-see advice."
+    needs_verification: true
+
+  - id: wsava-nutrition-guidelines
+    name: WSAVA Global Nutrition Guidelines
+    url: "https://wsava.org/global-guidelines/global-nutrition-guidelines/"
+    jurisdiction: global
+    language: en
+    source_tier: Tier 1
+    domains: [nutrition, medical]
+    last_reviewed: 2026-07-07
+    notes: "Nutrition toolkit and diet-history guidance."
+    allowed_use: "Explain prescription diet and nutrition-assessment questions."
+    forbidden_use: "Do not recommend brands or replace veterinary diet decisions."
+    needs_verification: true
+
+  - id: merck-veterinary-manual
+    name: Merck Veterinary Manual
+    url: "https://www.merckvetmanual.com/"
+    jurisdiction: global
+    language: en
+    source_tier: Tier 3
+    domains: [medical]
+    last_reviewed: 2026-07-07
+    notes: "Veterinary term and condition reference."
+    allowed_use: "Explain medical vocabulary with uncertainty."
+    forbidden_use: "Do not diagnose a pet from user text."
+    needs_verification: true
+
+  - id: cornell-feline-health-center
+    name: Cornell Feline Health Center
+    url: "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center"
+    jurisdiction: US
+    language: en
+    source_tier: Tier 1
+    domains: [medical]
+    last_reviewed: 2026-07-07
+    notes: "Cat health education."
+    allowed_use: "Use for owner-facing feline health term explanations."
+    forbidden_use: "Do not diagnose or prescribe."
+    needs_verification: true
+
+  - id: moa-vet-records-cn
+    name: 农业农村部动物诊疗病历与兽医处方规范
+    url: "https://xmsyj.moa.gov.cn/gzdt/202312/t20231214_6442774.htm"
+    jurisdiction: CN
+    language: zh
+    source_tier: Tier 1
+    domains: [jurisdiction, medical]
+    last_reviewed: 2026-07-07
+    notes: "动物诊疗病历、兽医处方格式及应用规范。"
+    allowed_use: "说明中国诊疗记录、处方和理赔材料索取方向。"
+    forbidden_use: "不要对具体纠纷给法律结论。"
+    needs_verification: true
+
+  - id: nfra-pet-insurance-risk-cn
+    name: 国家金融监督管理总局地方监管风险提示
+    url: "https://www.nfra.gov.cn/"
+    jurisdiction: CN
+    language: zh
+    source_tier: Tier 1
+    domains: [insurance]
+    last_reviewed: 2026-07-07
+    notes: "宠物保险购买和理赔风险提示，强调如实申报。"
+    allowed_use: "说明反欺诈、既往症和材料真实性边界。"
+    forbidden_use: "不要帮助规避既往症或包装材料。"
+    needs_verification: true
+
+  - id: pingan-pet-insurance-terms-cn
+    name: 平安公开宠物险产品页面
+    url: "https://www.pingan.com/"
+    jurisdiction: CN
+    language: zh
+    source_tier: Tier 2
+    domains: [insurance]
+    last_reviewed: 2026-07-07
+    notes: "公开产品页可用于说明等待期、赔付比例、单次上限、指定医院等条款类型。"
+    allowed_use: "解释中国宠物险常见条款检查点。"
+    forbidden_use: "不要推荐或评价具体保险产品优劣。"
+    needs_verification: true
+
+  - id: internal-anonymized-billing-taxonomy
+    name: PetVault anonymized billing taxonomy
+    url: "local-guidance"
+    jurisdiction: global
+    language: zh
+    source_tier: Tier 4
+    domains: [billing]
+    last_reviewed: 2026-07-07
+    notes: "匿名化账单项目分类字典和回归测试样本。"
+    allowed_use: "账单项目归类、金额字段分离和 unknown 标注。"
+    forbidden_use: "不要替代医院收费解释或判断价格公平。"
+    needs_verification: false
+

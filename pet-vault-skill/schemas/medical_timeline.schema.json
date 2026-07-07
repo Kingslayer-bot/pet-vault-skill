@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PetVault Medical Timeline Event",
+  "type": "object",
+  "required": ["event_id", "pet_id", "date", "source_materials", "confidence"],
+  "properties": {
+    "event_id": {"type": "string"},
+    "pet_id": {"type": "string"},
+    "date": {"type": "string"},
+    "clinic": {"type": ["string", "null"]},
+    "reason_for_visit": {"type": ["string", "null"]},
+    "symptoms": {"type": "array", "items": {"type": "string"}},
+    "diagnostics": {"type": "array", "items": {"type": "string"}},
+    "diagnosis_or_assessment": {"type": ["string", "null"]},
+    "treatments": {"type": "array", "items": {"type": "string"}},
+    "medications": {"type": "array", "items": {"type": "string"}},
+    "follow_up": {"type": ["string", "null"]},
+    "red_flags": {"type": "array", "items": {"type": "string"}},
+    "source_materials": {"type": "array", "items": {"type": "string"}},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+  }
+}

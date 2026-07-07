@@ -336,6 +336,8 @@ def normalize_currency(token: str) -> str:
         return "USD"
     if value in {"元", "RMB", "CNY", "¥", "￥"}:
         return "CNY"
+    if value in {"HKD", "SGD", "JPY"}:
+        return value
     return value or "UNKNOWN"
 
 
@@ -355,10 +357,12 @@ def parse_amount_number(raw_amount: str) -> float:
 
 def classify_money_kind(line: str, amount: float) -> str:
     lower_line = line.lower()
-    if amount < 0 or any(keyword in lower_line for keyword in ["payment", "paid", "付款", "支付", "已付", "carecredit"]):
-        return "payment"
     if any(keyword in lower_line for keyword in ["discount", "折扣", "优惠", "adjustment"]):
         return "discount"
+    if any(keyword in lower_line for keyword in ["refund", "退款", "退费"]):
+        return "refund"
+    if amount < 0 or any(keyword in lower_line for keyword in ["payment", "paid", "付款", "支付", "已付", "carecredit"]):
+        return "payment"
     if any(keyword in lower_line for keyword in ["balance", "余额"]):
         return "balance"
     if any(keyword in lower_line for keyword in ["total", "subtotal", "合计", "总计", "总收费"]):
@@ -370,11 +374,15 @@ def parse_money_mentions(text: str) -> list[dict]:
     mentions = []
     patterns = [
         re.compile(
-            r"(?P<currency>US\$|USD|RMB|CNY|\$|¥|￥)\s*(?P<amount>\(?-?\d[\d,]*(?:\.\d+)?\)?)",
+            r"(?P<currency>US\$|USD|RMB|CNY|HKD|SGD|JPY|\$|¥|￥)\s*(?P<amount>\(?-?\d[\d,]*(?:\.\d+)?\)?)",
             flags=re.IGNORECASE,
         ),
         re.compile(
-            r"(?P<amount>\(?-?\d[\d,]*(?:\.\d+)?\)?)\s*(?P<currency>元|RMB|CNY|USD|US\$|\$|¥|￥)",
+            r"(?P<amount>\(?-?\d[\d,]*(?:\.\d+)?\)?)\s*(?P<currency>元|RMB|CNY|HKD|SGD|JPY|USD|US\$|\$|¥|￥)",
+            flags=re.IGNORECASE,
+        ),
+        re.compile(
+            r"\((?P<currency>US\$|USD|RMB|CNY|HKD|SGD|JPY|\$|¥|￥)\s*(?P<amount>-?\d[\d,]*(?:\.\d+)?)\)",
             flags=re.IGNORECASE,
         ),
     ]
@@ -387,12 +395,15 @@ def parse_money_mentions(text: str) -> list[dict]:
                 amount = parse_amount_number(match.group("amount"))
             except ValueError:
                 continue
+            raw_match = match.group(0).strip()
+            if raw_match.startswith("(") and raw_match.endswith(")") and amount > 0:
+                amount = -amount
             used_spans.append((match.start(), match.end()))
             mentions.append(
                 {
                     "amount": amount,
                     "currency": normalize_currency(match.group("currency")),
-                    "raw": match.group(0).strip(),
+                    "raw": raw_match,
                     "start": match.start(),
                     "end": match.end(),
                     "kind": classify_money_kind(text, amount),
@@ -421,6 +432,8 @@ def build_bill_items(materials: list[dict]) -> list[dict]:
                         category = "付款"
                     elif mention["kind"] == "discount":
                         category = "折扣"
+                    elif mention["kind"] == "refund":
+                        category = "退款"
                     elif mention["kind"] == "balance":
                         category = "余额"
                     elif mention["kind"] == "total":

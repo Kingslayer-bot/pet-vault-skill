@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PetVault KB Card Frontmatter",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "domain",
+    "jurisdiction",
+    "language",
+    "species",
+    "source_tier",
+    "risk_level",
+    "allowed_outputs",
+    "forbidden_outputs",
+    "sources",
+    "last_reviewed",
+    "expires_at"
+  ],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "domain": {"enum": ["billing", "insurance", "medical", "nutrition", "safety", "jurisdiction"]},
+    "jurisdiction": {"type": "string"},
+    "language": {"type": "string"},
+    "currency": {"type": ["string", "array"]},
+    "species": {"type": "array", "items": {"type": "string"}},
+    "source_tier": {"type": "string"},
+    "risk_level": {"enum": ["low", "medium", "high"]},
+    "allowed_outputs": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "forbidden_outputs": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "sources": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "last_reviewed": {"type": "string"},
+    "expires_at": {"type": "string"}
+  }
+}

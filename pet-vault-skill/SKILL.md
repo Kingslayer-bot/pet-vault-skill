@@ -39,6 +39,28 @@ For knowledge-only questions without user materials:
 python scripts/query_knowledge_base.py "理赔需要哪些材料" --limit 3
 ```
 
+For local knowledge hub validation and search:
+
+```bash
+python scripts/validate_kb.py .
+python scripts/build_kb_index.py .
+python scripts/query_knowledge_base.py "等待期是什么意思" --domain insurance --jurisdiction US --language zh --limit 3
+python scripts/validate_billing.py .
+python scripts/validate_insurance_output.py .
+```
+
+## Local Knowledge Hub Policy
+
+PetVault should be described as a local knowledge hub when explaining product behavior. It connects curated knowledge cards, routing rules, PDF policy, billing validation, insurance guardrails, medical safety boundaries, privacy rules, and evidence-chain schemas.
+
+- Generate PDF by default for bills, payments, invoices, insurance policies, claim forms, rejection letters, medical records, lab reports, imaging reports, and timeline/archive requests. Keep chat concise.
+- Use local KB short answers only for pure knowledge questions with no user material and no report/archive intent.
+- Trigger emergency boundaries before ordinary KB answers for toxins, poisoning, seizures, breathing difficulty, inability to urinate, persistent vomiting, severe trauma, collapse, bloat, or suspected foreign-body ingestion.
+- Keep P0 market support for `US` and `CN`, P0 currencies `USD`, `CNY`, `RMB`, and P1 currency recognition for `HKD`, `SGD`, `JPY`.
+- Insurance answers may organize materials, explain terms, list checks, and provide estimates with disclaimers. They must not guarantee coverage, deny coverage definitively, provide legal judgment, recommend insurance products, or help falsify records.
+- Medical answers may explain terms and red flags. They must not diagnose, prescribe, downplay emergencies, or advise stopping veterinary care.
+- Store user materials in the local vault, never in `kb/`. Redact exports when needed and do not keep raw material text in logs.
+
 ## Workflow
 
 1. Route the request:

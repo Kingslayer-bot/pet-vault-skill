@@ -1,0 +1,15 @@
+- query: "这张账单为什么这么贵？"
+  material_type: invoice
+  expected_route: bill_report
+  expected_pdf: required
+- query: "宠物保险等待期是什么意思？"
+  material_type: none
+  expected_route: knowledge_query
+  expected_pdf: not_required
+- query: "猫吃了百合怎么办？"
+  material_type: none
+  expected_route: emergency_boundary
+- query: "这项能不能报销？"
+  material_type: invoice
+  expected_route: insurance_precheck
+  forbidden_outputs: [一定能赔, 一定不能赔]

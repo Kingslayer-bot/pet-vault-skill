@@ -1,0 +1,4 @@
+- input: invoice
+  expected_pdf: required
+- input: pure_term_explanation
+  expected_pdf: not_required

@@ -1,8 +1,10 @@
 ﻿import json
 import shutil
+import os
 import sqlite3
 import subprocess
 import sys
+import tempfile
 import unittest
 import uuid
 from pathlib import Path
@@ -10,7 +12,7 @@ from pathlib import Path
 
 SKILL = Path(__file__).resolve().parents[1]
 ROOT = SKILL.parent
-TMP_ROOT = ROOT / "work" / "tmp" / "package_tests"
+TMP_ROOT = Path(os.environ.get("PETVAULT_TEST_TMP", Path(tempfile.gettempdir()) / "pet_vault_skill_package_tests"))
 sys.path.insert(0, str(SKILL / "scripts"))
 import petvault_core
 

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PetVault Claim Case",
+  "type": "object",
+  "required": ["claim_id", "pet_id", "claim_status", "missing_documents", "uncertainty_flags"],
+  "properties": {
+    "claim_id": {"type": "string"},
+    "pet_id": {"type": "string"},
+    "policy_id": {"type": ["string", "null"]},
+    "visit_materials": {"type": "array", "items": {"type": "string"}},
+    "invoice_ids": {"type": "array", "items": {"type": "string"}},
+    "medical_record_ids": {"type": "array", "items": {"type": "string"}},
+    "payment_record_ids": {"type": "array", "items": {"type": "string"}},
+    "claim_status": {"enum": ["draft", "ready_to_submit", "submitted", "rejected", "paid", "unknown"]},
+    "missing_documents": {"type": "array", "items": {"type": "string"}},
+    "estimated_eligible_amount": {"type": ["number", "null"]},
+    "estimated_reimbursement": {"type": ["number", "null"]},
+    "uncertainty_flags": {"type": "array", "items": {"type": "string"}},
+    "next_questions_for_insurer": {"type": "array", "items": {"type": "string"}}
+  }
+}
