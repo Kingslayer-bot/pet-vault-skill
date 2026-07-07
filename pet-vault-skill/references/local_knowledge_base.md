@@ -1,3 +1,9 @@
+## Development History
+
+- **v0.2.0**: Integrated the local knowledge hub from the design document `本地知识库设计.txt`, establishing the three-layer KB architecture (`kb/articles/`, `kb/sources.yaml`, SQLite/FTS index), answer contracts for knowledge/insurance/medical/emergency, and crawl-scope boundaries.
+- **v0.3.0**: Added unified dispatch (`petvault_dispatch.py`), YAML rule consumption (`kb/rules/`), and emergency boundary detection for toxin/red-flag questions.
+- The `pet-vault-skill-v2/` development directory and `pet-vault-skill-with-kb.zip` are archived development artifacts, now removed from the active mainline after integration.
+
 # Local Knowledge Base Design
 
 Use this reference when the user asks a knowledge-only question or when improving the PetVault local knowledge layer.

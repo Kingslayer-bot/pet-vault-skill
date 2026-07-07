@@ -35,7 +35,7 @@ The runnable implementation in this repository still centers on the `Engine + C-
 
 ## Current Version
 
-- Repository version: `0.3.0`
+- Repository version: `0.3.0` (merged from pet-vault-skill-v2 development workspace)
 - Product baseline: `PetVault AI PRD V1.1`
 - License: `MIT`
 
