@@ -31,6 +31,21 @@ Use the bundled Phase 1 runner when the user provides local files or asks for a 
 python scripts/run_pipeline.py --input path/to/materials --output ~/PetVault/reports/2026-07-06_Mimi_bill_explain --vault ~/PetVault/vault --request "帮我解释这张账单" --pet-name Mimi --pdf-policy required
 ```
 
+For unified dispatch routing:
+
+```bash
+python scripts/petvault_dispatch.py --request "帮我看下这张账单" --mode auto
+```
+
+`--mode` options:
+
+```
+--mode auto      Use dispatch to route automatically (default)
+--mode report    Force report pipeline
+--mode knowledge Force KB query only
+--mode emergency Force emergency check
+```
+
 Use `--pdf-policy required` for user-facing bill, payment, invoice, insurance, and claim-package deliverables when a PDF must be attached. Use `--skip-pdf-compile` only for fast validation or when a TeX engine is unavailable; the runner still creates `report.md`, `report.tex`, `manifest.json`, `qa_result.json`, and a SQLite vault.
 
 For knowledge-only questions without user materials:
@@ -63,10 +78,11 @@ PetVault should be described as a local knowledge hub when explaining product be
 
 ## Workflow
 
-1. Route the request:
-   - Knowledge-only, no user material, no report/PDF/archive intent: query the local KB and answer briefly.
-   - Bill, payment, invoice, insurance, reimbursement, claim, or uploaded-material request: run the report workflow immediately.
-   - Ambiguous material request: ask one confirmation question rather than silently guessing.
+1. Route the request via petvault_dispatch:
+   - Emergency: return urgent safety response immediately.
+   - Knowledge-only with no materials: query the local KB and answer briefly.
+   - Has materials or report intent: run the report workflow.
+   - Ambiguous: ask one confirmation question.
 2. Run material organization first. Do not let later analysis agents re-parse raw files independently.
 3. Create `materials_index.json` with source file, material type, date, pet name, confidence, and extracted text path. Respect explicit `Material type:` hints and do not treat "policy not visible" as a policy document.
 4. Select `report_type` automatically when possible: `bill_explain`, `claim_check`, `timeline`, `medical_summary`, `chronic_review`, `clinic_client_summary`, or `general`. Save the selected type and routing reason in `manifest.json`; do not expose routing internals in chat.
@@ -129,11 +145,22 @@ The skill also contains a small local knowledge base:
 ```text
 kb/
 +-- articles/
-|   +-- claim-packet-us.md
-|   +-- billing-line-items.md
-|   +-- nutrition-prescription-food.md
-|   +-- toxin-emergency-boundary.md
+|   +-- billing/
+|   |   +-- billing-line-items-us.md
+|   |   +-- billing-line-items-cn.md
+|   +-- insurance/
+|   |   +-- claim-packet-us.md
+|   |   +-- claim-packet-cn.md
+|   +-- medical/
+|   |   +-- prescription-diet.md
+|   +-- safety/
+|   |   +-- emergency-boundary.md
+|   |   +-- toxin-boundary.md
+|   +-- jurisdiction/
+|       +-- us-vet-records.md
+|       +-- cn-vet-records.md
 +-- sources.yaml
++-- ontology.yaml
 ```
 
 Read `references/local_knowledge_base.md` when extending crawl targets, schemas, or KB routing. Keep authoritative source URLs, retrieval/update dates, jurisdiction, topic, and risk level with each article. Use Markdown as the source of truth; any SQLite/FTS index must be rebuildable.
@@ -152,6 +179,7 @@ Read `references/local_knowledge_base.md` when extending crawl targets, schemas,
 - `scripts/compile_pdf.py`: compile with XeLaTeX or latexmk when available.
 - `scripts/inspect_pdf_layout.py`: check generated report artifacts and obvious layout risks.
 - `scripts/query_knowledge_base.py`: search curated local KB articles for knowledge-only questions.
+- `scripts/petvault_dispatch.py`: unified request dispatcher (emergency/knowledge/report routing).
 - `scripts/quick_validate.py`: validate the skill package, required resources, and CLI entrypoints.
 - `config/*.yaml`: agent roles, material types, safety rules, report checks, and LaTeX layout constraints.
 - `schemas/*.json`: JSON schemas for generated indexes and QA data.
@@ -201,3 +229,4 @@ Before finishing, verify:
 - Producing only a PDF. Keep the Markdown, LaTeX, manifest, QA result, and vault data.
 - Dumping full bill explanations into chat when a report PDF should carry the detail.
 - Letting a generic insurance word in a bill transcription override explicit invoice/bill evidence.
+- Skipping the unified dispatch step. Always use petvault_dispatch to route emergency/safety queries before any other workflow.

@@ -35,7 +35,7 @@ The runnable implementation in this repository still centers on the `Engine + C-
 
 ## Current Version
 
-- Repository version: `0.1.2`
+- Repository version: `0.3.0`
 - Product baseline: `PetVault AI PRD V1.1`
 - License: `MIT`
 

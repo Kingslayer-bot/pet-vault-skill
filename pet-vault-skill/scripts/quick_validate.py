@@ -15,7 +15,7 @@ REQUIRED_FILES = [
     "schemas/material_index.schema.json",
     "schemas/report_manifest.schema.json",
     "schemas/qa_result.schema.json",
-    "kb/articles/claim-packet-us.md",
+    "kb/articles/insurance/claim-packet-us.md",
 ]
 
 

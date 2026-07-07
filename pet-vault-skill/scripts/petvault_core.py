@@ -10,11 +10,93 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
+try:
+    import yaml as _yaml
+except ImportError:
+    _yaml = None
+
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPT_DIR.parent
 UNKNOWN_TEXT = "待确认"
 AUTO_REPORT_TYPE = "auto"
+
+_KB_RULES_CACHE: dict[str, dict] = {}
+
+
+def load_kb_rules(reload: bool = False) -> dict[str, dict]:
+    global _KB_RULES_CACHE
+    if _KB_RULES_CACHE and not reload:
+        return _KB_RULES_CACHE
+    rules: dict[str, dict] = {}
+    rules_dir = SKILL_DIR / "kb" / "rules"
+    if not rules_dir.exists():
+        return rules
+    for yaml_file in sorted(rules_dir.glob("*.yaml")):
+        try:
+            if _yaml is None:
+                continue
+            text = yaml_file.read_text(encoding="utf-8")
+            data = _yaml.safe_load(text) or {}
+            rules[yaml_file.stem] = data
+        except Exception:
+            continue
+    _KB_RULES_CACHE = rules
+    return rules
+
+
+def load_kb_ontology() -> dict:
+    try:
+        if _yaml is None:
+            return {}
+        path = SKILL_DIR / "kb" / "ontology.yaml"
+        if path.exists():
+            return _yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        pass
+    return {}
+
+
+def _get_emergency_terms() -> list[str]:
+    terms: list[str] = []
+    rules = load_kb_rules()
+    routing = rules.get("routing", {})
+    emergency_cfg = routing.get("emergency_boundary", {})
+    triggers = emergency_cfg.get("triggers", {})
+    raw_terms = triggers.get("terms", [])
+    if isinstance(raw_terms, list):
+        terms.extend(raw_terms)
+    medical = rules.get("medical_safety", {})
+    red_flags = medical.get("red_flags", [])
+    if isinstance(red_flags, list):
+        terms.extend(red_flags)
+    return terms
+
+
+def detect_emergency(request_text: str) -> bool:
+    if not request_text:
+        return False
+    text_lower = request_text.lower()
+    for term in _get_emergency_terms():
+        if str(term).lower().replace("_", " ") in text_lower:
+            return True
+    hardcoded = [
+        r"中毒", r"毒素", r"毒物", r"吃了.*(巧克力|葡萄|洋葱|大蒜|百合|老鼠|蟑螂|杀虫剂|清洁剂|药品)",
+        r"抽搐", r"痉挛", r"癫痫", r"seizure",
+        r"呼吸困难", r"喘不上气", r"breathing\s+difficulty",
+        r"尿不出来", r"无法排尿", r"尿闭", r"can['\u2019]t\s+urinate",
+        r"持续呕吐", r"persistent\s+vomiting",
+        r"严重外伤", r"大出血", r"severe\s+trauma",
+        r"晕倒", r"昏迷", r"不醒", r"collapse",
+        r"腹胀", r"胃胀", r"bloat",
+        r"吞了.*异物", r"误食", r"foreign\s+body",
+        r"木糖醇", r"xylitol",
+    ]
+    for pattern in hardcoded:
+        if re.search(pattern, text_lower):
+            return True
+    return False
+
 
 FORBIDDEN_TERMS = [
     "PRD",
@@ -866,6 +948,19 @@ def update_local_db(
     return report_id
 
 
+def _get_dynamic_forbidden_terms() -> list[str]:
+    terms: list[str] = []
+    try:
+        rules = load_kb_rules()
+        guard = rules.get("insurance_guardrails", {})
+        forbidden = guard.get("forbidden_claims", [])
+        if isinstance(forbidden, list):
+            terms.extend(forbidden)
+    except Exception:
+        pass
+    return terms
+
+
 def inspect_report(
     output_dir: Path,
     report_md: str,
@@ -874,7 +969,8 @@ def inspect_report(
 ) -> dict:
     blocking = []
     warnings = []
-    for term in FORBIDDEN_TERMS + NEGATIVE_CLAIMS:
+    all_forbidden = FORBIDDEN_TERMS + NEGATIVE_CLAIMS + _get_dynamic_forbidden_terms()
+    for term in all_forbidden:
         if term in report_md:
             blocking.append(f"Forbidden or unsafe report term: {term}")
     required_files = ["report.md", "report.tex", "manifest.json", "build.log"]
