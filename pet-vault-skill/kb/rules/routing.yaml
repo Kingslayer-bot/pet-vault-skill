@@ -27,7 +27,7 @@ knowledge_query:
 
 emergency_boundary:
   triggers:
-    terms: [poison, toxin, lily, xylitol, chocolate, seizure, breathing difficulty, unable to urinate, 百合, 木糖醇, 巧克力, 抽搐, 呼吸困难, 无法排尿]
+    terms: [poison, toxin, lily, xylitol, chocolate, grape, raisin, onion, garlic, human medication, cleaning agent, seizure, breathing difficulty, unable to urinate, collapse, foreign body, persistent vomiting, severe trauma, 百合, 木糖醇, 巧克力, 葡萄, 葡萄干, 洋葱, 大蒜, 人用药, 清洁剂, 抽搐, 呼吸困难, 无法排尿, 昏迷, 异物, 持续呕吐, 严重外伤]
   output:
     chat: urgent_safety_response
     pdf: forbidden_unless_after_action_summary

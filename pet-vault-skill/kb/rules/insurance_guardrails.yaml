@@ -7,6 +7,8 @@ forbidden_claims:
   - recommend_insurance_product
   - help_falsify_records
   - help_hide_preexisting_condition
+  - incomplete_material_assessment
+  - judge_without_policy
 
 allowed_claims:
   - conditional_precheck

@@ -3,9 +3,53 @@
   "title": "Insurance Check",
   "type": "object",
   "properties": {
-    "existing_materials": {"type": "array", "items": {"type": "string"}},
-    "missing_materials": {"type": "array", "items": {"type": "string"}},
-    "risk_reminders": {"type": "array", "items": {"type": "string"}},
-    "outcome_promise": {"const": false}
+    "existing_materials": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "missing_materials": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk_reminders": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "outcome_promise": {
+      "const": false
+    },
+    "waiting_period_days": {
+      "type": "integer",
+      "description": "Waiting period in days"
+    },
+    "deductible_amount": {
+      "type": "number",
+      "description": "Deductible amount"
+    },
+    "deductible_type": {
+      "type": "string",
+      "enum": [
+        "annual",
+        "per-condition",
+        "per-item"
+      ],
+      "description": "Deductible type"
+    },
+    "reimbursement_rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Reimbursement rate 0-1"
+    },
+    "annual_limit": {
+      "type": "number",
+      "description": "Annual coverage limit"
+    }
   }
 }

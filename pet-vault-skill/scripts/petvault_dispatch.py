@@ -25,6 +25,27 @@ EMERGENCY_PATTERNS = [
     re.compile(r"木糖醇|xylitol", re.IGNORECASE),
 ]
 
+
+FRAUD_PATTERNS = [
+    re.compile(r"隐瞒|隐藏|伪造|篡改|改.*(?:病历|时间|日期)|把.*写到.*之后|规避既往症|隐瞒既往症|不像既往症|改.*不像|写.*不明显|不如实|作假|作弊|falsif|forge|alter.*record|hide.*preexisting|tamper", re.IGNORECASE),
+    re.compile(r"推荐.*保险|买哪个.*保险|哪个.*保险.*好|recommend.*insurance|which.*insurance.*best|suggest.*insurance|告诉我.*买.*保险", re.IGNORECASE),
+    re.compile(r"违法|合法|起诉|投诉|lawsuit|sue|legal.*judg|illegal|unlawful|违反.*法", re.IGNORECASE),
+]
+
+FORBIDDEN_RESPONSE = """[FORBIDDEN] This request is outside PetVault scope.
+
+PetVault can help you:
+- Organize and explain veterinary bills
+- Check claim material completeness
+- Compile long-term medical timelines
+
+PetVault cannot help you:
+- Alter, falsify, or hide medical records
+- Provide legal judgment or advice
+- Recommend specific insurance products
+
+If you need genuine medical record organization, please upload the original materials."""
+
 EMERGENCY_RESPONSE = """\
 ⚠️ 紧急提醒：你描述的情况可能属于需要立即处理的宠物急症。
 
@@ -117,9 +138,26 @@ def knowledge_only_answer(query: str) -> str:
     return "\n".join(lines)
 
 
+
+
+def detect_forbidden(request_text: str) -> bool:
+    if not request_text:
+        return False
+    for pattern in FRAUD_PATTERNS:
+        if pattern.search(request_text):
+            return True
+    return False
+
+
+def get_forbidden_response() -> str:
+    return FORBIDDEN_RESPONSE
+
 def dispatch(request_text: str, input_dir: Path | None = None, has_materials: bool = False) -> str:
     if request_text and detect_emergency(request_text):
         return "emergency"
+
+    if request_text and detect_forbidden(request_text):
+        return "forbidden"
 
     actual_has_materials = has_materials or (
         input_dir is not None and input_dir.exists() and input_dir.is_dir() and any(input_dir.iterdir())
@@ -150,8 +188,11 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Output as JSON.")
     args = parser.parse_args()
     result = dispatch(args.request)
+    output = {"route": result, "mode": args.mode, "request": args.request}
+    if result == "forbidden":
+        output["response"] = get_forbidden_response()
     if args.json:
-        json.dump({"route": result, "mode": args.mode, "request": args.request}, sys.stdout, ensure_ascii=False, indent=2)
+        json.dump(output, sys.stdout, ensure_ascii=False, indent=2)
         sys.stdout.write("\n")
     else:
         print(f"Route: {result}")

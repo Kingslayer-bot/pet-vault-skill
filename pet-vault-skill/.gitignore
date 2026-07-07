@@ -1,0 +1,8 @@
+﻿__pycache__/
+*.pyc
+*.pyc.*
+kb/index/kb.sqlite
+*.sqlite3
+tmp/
+.env
+*.log
