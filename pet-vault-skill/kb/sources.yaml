@@ -181,3 +181,81 @@ sources:
     forbidden_use: "不要承诺一定能通过检疫或入境。"
     needs_verification: true
 
+  - id: afcd-pet-import-hk
+    name: 香港渔农自然护理署宠物进口规定
+    url: "https://www.afcd.gov.hk/"
+    jurisdiction: HK
+    language: zh
+    source_tier: Tier 1
+    domains: [jurisdiction, travel]
+    last_reviewed: 2026-07-08
+    notes: "香港对宠物进口的检疫和许可证要求。"
+    allowed_use: "说明香港宠物进口检疫要求和材料清单。"
+    forbidden_use: "不要承诺一定能通过检疫。"
+    needs_verification: true
+
+  - id: avs-pet-import-sg
+    name: 新加坡动物与兽医局宠物进口规定
+    url: "https://www.nparks.gov.sg/avs"
+    jurisdiction: SG
+    language: en
+    source_tier: Tier 1
+    domains: [jurisdiction, travel]
+    last_reviewed: 2026-07-08
+    notes: "Singapore AVS requirements for pet import, quarantine, and licensing."
+    allowed_use: "Explain Singapore pet import and licensing requirements."
+    forbidden_use: "Do not guarantee import approval."
+    needs_verification: true
+
+  - id: maff-pet-import-jp
+    name: 日本农林水产省动物检疫所宠物进口规定
+    url: "https://www.maff.go.jp/aqs/"
+    jurisdiction: JP
+    language: ja
+    source_tier: Tier 1
+    domains: [jurisdiction, travel]
+    last_reviewed: 2026-07-08
+    notes: "日本对宠物输入的检疫要求，包括狂犬疫苗和微芯片。"
+    allowed_use: "说明日本宠物进口检疫流程和必要材料。"
+    forbidden_use: "不要承诺检疫一定会通过。"
+    needs_verification: true
+
+  - id: hk-pet-insurance-guide
+    name: 香港宠物保险市场概况
+    url: "https://www.oci.gov.hk/"
+    jurisdiction: HK
+    language: zh
+    source_tier: Tier 2
+    domains: [insurance]
+    last_reviewed: 2026-07-08
+    notes: "香港保险业监管局对宠物保险的一般监管框架。"
+    allowed_use: "说明香港宠物保险的一般条款类型。"
+    forbidden_use: "不要推荐或评价具体保险产品。"
+    needs_verification: true
+
+  - id: sg-pet-insurance-guide
+    name: 新加坡宠物保险市场概况
+    url: "https://www.mas.gov.sg/"
+    jurisdiction: SG
+    language: en
+    source_tier: Tier 2
+    domains: [insurance]
+    last_reviewed: 2026-07-08
+    notes: "Singapore pet insurance market overview and regulatory framework."
+    allowed_use: "Explain Singapore pet insurance terms and claim processes."
+    forbidden_use: "Do not recommend specific insurance products."
+    needs_verification: true
+
+  - id: jp-pet-insurance-guide
+    name: 日本ペット保険市場概况
+    url: "https://www.fsa.go.jp/"
+    jurisdiction: JP
+    language: ja
+    source_tier: Tier 2
+    domains: [insurance]
+    last_reviewed: 2026-07-08
+    notes: "日本ペット保険の一般的な条款类型和理赔流程。"
+    allowed_use: "说明日本宠物保险的常见条款和理赔检查点。"
+    forbidden_use: "不要推荐具体保险产品。"
+    needs_verification: true
+
