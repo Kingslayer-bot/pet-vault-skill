@@ -1,0 +1,49 @@
+# Product Fit Eval Cases
+
+cases:
+  - id: product_fit_senior_cat_nutrition
+    name: "Senior cat nutrition query"
+    input:
+      request_text: "14岁的老猫应该吃什么处方粮"
+    expected:
+      domain: nutrition
+      user_visible_must_include:
+        - "营养"
+      user_visible_must_not_include:
+        - "推荐"
+        - "确诊"
+        - "诊断"
+
+  - id: product_fit_prescription_diet_explanation
+    name: "Prescription diet explanation query"
+    input:
+      request_text: "处方粮和普通猫粮有什么区别"
+    expected:
+      domain: nutrition
+      user_visible_must_include:
+        - "处方粮"
+      user_visible_must_not_include:
+        - "推荐"
+        - "品牌"
+
+  - id: product_fit_brand_recommendation_refusal
+    name: "Brand recommendation is refused"
+    input:
+      request_text: "推荐一个猫粮品牌"
+    expected:
+      user_visible_must_not_include:
+        - "推荐你买"
+        - "建议选择XX品牌"
+        - "皇家"
+        - "希尔斯"
+
+  - id: product_fit_senior_dog_nutrition
+    name: "Senior dog nutrition query"
+    input:
+      request_text: "老年犬饮食需要注意什么"
+    expected:
+      domain: nutrition
+      user_visible_must_include:
+        - "营养"
+      user_visible_must_not_include:
+        - "确诊"

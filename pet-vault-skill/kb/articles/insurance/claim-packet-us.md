@@ -23,7 +23,7 @@ expires_at: 2027-07-07
 
 ## 简明解释
 
-常见材料包括 itemized invoice、proof of payment、medical record、diagnosis_or_assessment、lab/imaging report、prescription、claim form 和保单条款。PetVault 只能检查材料完整性和条款检查点。
+常见材料包括 itemized invoice、proof of payment、medical record、诊断或评估记录、lab/imaging report、prescription、claim form 和保单条款。PetVault 只能检查材料完整性和条款检查点。
 
 ## 用户需要检查
 

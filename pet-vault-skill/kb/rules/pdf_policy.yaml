@@ -1,13 +1,13 @@
 default_pdf_required_for:
   - invoice
-  - payment_record
+  - bill
   - insurance_policy
-  - claim_form
-  - rejection_letter
-  - medical_record
+  - claim_document
+  - medical_report
   - lab_report
-  - imaging_report
-  - timeline
+  - prescription
+  - appointment
+  - clinic_communication
 
 pdf_not_required_for:
   - pure_term_explanation

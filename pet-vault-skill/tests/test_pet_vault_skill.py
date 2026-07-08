@@ -1,4 +1,4 @@
-﻿import json
+import json
 import shutil
 import os
 import sqlite3
@@ -284,9 +284,10 @@ class PetVaultSkillPackageTests(unittest.TestCase):
             text=True,
             capture_output=True,
             timeout=30,
+            encoding="utf-8",
         )
-        self.assertNotEqual(0, result.returncode, result.stdout + result.stderr)
-        self.assertIn("report.pdf is missing", result.stdout)
+        self.assertNotEqual(0, result.returncode, (result.stdout or "") + (result.stderr or ""))
+        self.assertIn("report.pdf is missing", result.stdout or "")
 
     def test_quick_validate_and_knowledge_query_entrypoints(self):
         validate = subprocess.run(
@@ -295,8 +296,9 @@ class PetVaultSkillPackageTests(unittest.TestCase):
             text=True,
             capture_output=True,
             timeout=30,
+            encoding="utf-8",
         )
-        self.assertEqual(validate.returncode, 0, validate.stderr + validate.stdout)
+        self.assertEqual(validate.returncode, 0, (validate.stderr or "") + (validate.stdout or ""))
         query = subprocess.run(
             [
                 sys.executable,
@@ -309,9 +311,10 @@ class PetVaultSkillPackageTests(unittest.TestCase):
             text=True,
             capture_output=True,
             timeout=30,
+            encoding="utf-8",
         )
-        self.assertEqual(query.returncode, 0, query.stderr + query.stdout)
-        payload = json.loads(query.stdout)
+        self.assertEqual(query.returncode, 0, (query.stderr or "") + (query.stdout or ""))
+        payload = json.loads(query.stdout or "{}")
         self.assertGreaterEqual(len(payload["matches"]), 1)
         self.assertIn("article_id", payload["matches"][0])
 
@@ -401,8 +404,9 @@ class PetVaultSkillPackageTests(unittest.TestCase):
             text=True,
             capture_output=True,
             timeout=30,
+            encoding="utf-8",
         )
-        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(result.returncode, 0, (result.stderr or "") + (result.stdout or ""))
         return output_dir, vault_dir
 
 

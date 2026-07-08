@@ -41,6 +41,9 @@ EXPLICIT_TYPE_ALIASES = {
     "medical_report": "medical_report",
     "prescription": "prescription",
     "appointment": "appointment",
+    "clinic_communication": "clinic_communication",
+    "communication": "clinic_communication",
+    "沟通": "clinic_communication",
     "pet_profile": "pet_profile",
 }
 

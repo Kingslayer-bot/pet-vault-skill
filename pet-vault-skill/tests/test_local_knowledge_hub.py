@@ -115,8 +115,9 @@ class PetVaultLocalKnowledgeHubTests(unittest.TestCase):
             text=True,
             capture_output=True,
             timeout=30,
+            encoding="utf-8",
         )
-        self.assertEqual(0, allowed.returncode, allowed.stderr + allowed.stdout)
+        self.assertEqual(0, allowed.returncode, (allowed.stderr or "") + (allowed.stdout or ""))
         forbidden = subprocess.run(
             [
                 sys.executable,
@@ -128,6 +129,7 @@ class PetVaultLocalKnowledgeHubTests(unittest.TestCase):
             text=True,
             capture_output=True,
             timeout=30,
+            encoding="utf-8",
         )
         self.assertNotEqual(0, forbidden.returncode)
 
@@ -140,7 +142,7 @@ class PetVaultLocalKnowledgeHubTests(unittest.TestCase):
                 "--domain",
                 "insurance",
                 "--jurisdiction",
-                "US",
+                "CN",
                 "--language",
                 "zh",
                 "--limit",
@@ -150,9 +152,10 @@ class PetVaultLocalKnowledgeHubTests(unittest.TestCase):
             text=True,
             capture_output=True,
             timeout=30,
+            encoding="utf-8",
         )
-        self.assertEqual(0, result.returncode, result.stderr + result.stdout)
-        payload = json.loads(result.stdout)
+        self.assertEqual(0, result.returncode, (result.stderr or "") + (result.stdout or ""))
+        payload = json.loads(result.stdout or "{}")
         self.assertGreaterEqual(len(payload["matches"]), 1)
         self.assertEqual("insurance", payload["matches"][0]["domain"])
 
