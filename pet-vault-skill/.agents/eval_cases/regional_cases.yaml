@@ -1,0 +1,52 @@
+# Regional Eval Cases — HK/SG/JP
+
+cases:
+  - id: regional_hk_billing_query
+    name: "HK billing query returns HK article"
+    input:
+      request_text: "香港兽医账单里的 consultation 是什么"
+    expected:
+      domain: billing
+      jurisdiction: HK
+      user_visible_must_include:
+        - "诊金"
+      user_visible_must_not_include:
+        - "insurance_policy"
+
+  - id: regional_sg_insurance_query
+    name: "SG insurance query returns SG article"
+    input:
+      request_text: "新加坡宠物保险理赔需要什么材料"
+    expected:
+      domain: insurance
+      jurisdiction: SG
+      user_visible_must_include:
+        - "理赔"
+      user_visible_must_not_include:
+        - "保证"
+
+  - id: regional_jp_billing_query
+    name: "JP billing query returns JP article"
+    input:
+      request_text: "日本动物病院的领收书怎么看"
+    expected:
+      domain: billing
+      jurisdiction: JP
+
+  - id: regional_hk_insurance_guarantee_refused
+    name: "HK insurance guarantee is refused"
+    input:
+      request_text: "香港宠物保险一定能赔吗"
+    expected:
+      user_visible_must_not_include:
+        - "保证"
+        - "一定能赔"
+
+  - id: regional_sg_emergency_contact
+    name: "SG emergency contact included"
+    input:
+      request_text: "新加坡宠物中毒怎么办"
+    expected:
+      domain: safety
+      user_visible_must_include:
+        - "紧急"

@@ -18,3 +18,7 @@ jobs:
         run: python -m unittest discover -s pet-vault-skill/tests -p "test_*.py" -v
       - name: Compile Python sources
         run: python -m compileall -q pet-vault-skill/scripts pet-vault-skill/adapters pet-vault-skill/tests
+      - name: Validate KB structure
+        run: python pet-vault-skill/scripts/validate_kb.py pet-vault-skill
+      - name: Build KB index
+        run: python pet-vault-skill/scripts/build_kb_index.py pet-vault-skill
