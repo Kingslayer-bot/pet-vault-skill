@@ -2,7 +2,41 @@
 
 All notable changes to PetVault skill will be documented in this file.
 
-## [Unreleased]
+## [1.1.0] - 2026-07-08
+
+### Knowledge Base v1.1 — Five Core Scenarios
+
+- **Travel care KB:** 4 articles, 2 sources (USDA APHIS, CN customs), routing, eval cases
+- **Product fit KB:** 2 nutrition articles with safe boundaries, eval cases
+- **HK/SG/JP regional rules:** 9 articles (3 per region: jurisdiction, billing, insurance), 6 sources
+- **Emergency contacts:** Added HK (AFCD), SG (AVS), JP (動物愛護センター) to safety article
+- **P0 alignment fix:** Unified material type names across material_ops, routing, pdf_policy
+- **Internal term collisions fixed:** 置信度, diagnosis_or_assessment removed from user-visible articles
+- **KNOWN_TERMS expanded:** 24 → 40 terms for better Chinese query matching
+- **Retrieval quality tests:** 12 queries across 5 domains
+- **KB index:** Rebuilt with all 32 articles
+
+### Coverage
+
+| Scenario | Status |
+|----------|--------|
+| Bill Explanation | Strong |
+| Insurance Boundary | Strong |
+| Emergency Guardrail | Strong |
+| Travel Care | Strong |
+| Product Fit | Strong |
+
+### Stats
+
+- Articles: 17 → 32
+- Sources: 12 → 20
+- Eval cases: 39 → 53
+- Tests: 181 → 241
+- Ontology domains: 6 → 7
+
+---
+
+## [0.3.0] - 2026-07-07
 
 ### Architecture & Engineering
 

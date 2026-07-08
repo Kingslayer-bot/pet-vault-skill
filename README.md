@@ -1,106 +1,90 @@
-﻿# PetVault AI / pet-vault-skill
+# PetVault AI / pet-vault-skill
 
 [中文说明](README.zh-CN.md)
 
-This repository contains the first open-source version of `pet-vault-skill`, the local-first engine behind **PetVault AI**.
+This repository contains the first open-source version of `pet-vault-skill`, the local-first engine behind **PetVault AI** — a workflow for organizing pet medical records, explaining veterinary reports and bills, and generating Markdown, LaTeX, and PDF care summaries.
 
 ## Repository Layout
 
 ```text
 pet-vault-skill/
-  SKILL.md
-  README.md
-  README.zh-CN.md
-  agents/
-  config/
-  prompts/
-  schemas/
-  scripts/
-  kb/
-  templates/
-  adapters/
-  tests/
-.github/workflows/
+  SKILL.md              — Skill definition and agent instructions
+  scripts/              — Core Python modules
+  kb/                   — Knowledge base (articles, rules, sources, index)
+  .agents/              — Agent governance (eval cases, forbidden terms, pipelines)
+  config/               — Material types, safety rules, report harness
+  templates/            — LaTeX report templates
+  schemas/              — JSON schemas for manifests and QA
+  tests/                — 241 unit tests
+  examples/             — 6 user flow examples
+  prompts/              — Agent prompt files
+  docs/                 — Architecture docs, KB audit reports
+.github/workflows/      — CI pipeline
 ```
 
-## Product Scope
+## Five Core User Scenarios
 
-`PetVault AI` in `PRD V1.1` is defined as a three-layer product:
+| Scenario | Status | Description |
+|----------|--------|-------------|
+| Bill Explanation | Strong | Invoice/bill item categorization, currency handling (USD/CNY/HKD/SGD/JPY) |
+| Insurance Boundary | Strong | Claim material check, policy term explanation, no coverage guarantees |
+| Emergency Guardrail | Strong | Toxin/symptom detection, regional emergency contacts (US/CN/HK/SG/JP) |
+| Travel Care | Strong | Pet airline requirements, health certificates, travel checklists |
+| Product Fit | Strong | Senior pet nutrition, prescription diet boundaries, safe guidance |
 
-- `C side`: report explanation, bill explanation, health timeline, claim material check, PDF-ready export
-- `B side`: SOAP draft demo structure, clinic-to-client explanation draft structure
-- `Engine`: local material ingestion, structured vault, Markdown/LaTeX/PDF pipeline
+## Regional Coverage
 
-The runnable implementation in this repository still centers on the `Engine + C-side workflow`. The B-side content in this version is limited to prompts, schemas, templates, and directory structure. It does not claim to be a complete hospital admin platform or a complete voice-to-record workflow.
-
-## Current Version
-
-- Repository version: `0.3.0` (merged from pet-vault-skill-v2 development workspace)
-- Product baseline: `PetVault AI PRD V1.1`
-- License: `MIT`
-
-## Verified Scope
-
-- local `vault/raw`, `vault/cleaned`, `vault/structured`, and SQLite storage
-- text-first material ingestion for `.txt`, `.md`, `.csv`, `.json`, `.tex`
-- placeholder indexing for `.pdf`, `.docx`, and images when body text is not parsed in Phase 1
-- material classification with `pet_name`, `clinic`, `date`, `confidence`, and `status`
-- caregiver-facing `report.md`
-- LaTeX `report.tex` using the required CTeX baseline
-- `manifest.json`, `qa_result.json`, and `build.log`
-- optional PDF compilation when local `xelatex` or `latexmk` is available
-- automatic report-type routing from request text and material types
-- curated local knowledge-base lookup for knowledge-only billing, claim, and record terminology questions
-- behavior tests for local storage, safety boundaries, report types, and harness-driven checks
-
-This first version provides real text ingestion for text-based materials. For PDF, DOCX, and image inputs, Phase 1 preserves the original file, creates an index entry, and marks the body text as pending confirmation rather than promising full OCR.
+| Region | Billing | Insurance | Jurisdiction | Safety | Status |
+|--------|---------|-----------|-------------|--------|--------|
+| US | billing-line-items-us | insurance-terms-us, claim-packet-us | us-vet-records | ASPCA | P0 |
+| CN | billing-line-items-cn | insurance-terms-cn, claim-packet-cn | cn-vet-records | Local hotline | P0 |
+| HK | billing-line-items-hk | insurance-terms-hk | hk-vet-records | AFCD 2708 8885 | P1 |
+| SG | billing-line-items-sg | insurance-terms-sg | sg-vet-records | AVS 1800-476-1600 | P1 |
+| JP | billing-line-items-jp | insurance-terms-jp | jp-vet-records | 動物愛護センター | P1 |
+| global | payment-discount-refund | policy-limits, rejection-letter | — | Emergency boundary | — |
 
 ## Quick Start
 
 ```bash
+# Generate a report from uploaded materials
 python pet-vault-skill/scripts/run_pipeline.py \
   --input path/to/materials \
-  --output path/to/PetVault/reports/2026-07-06_Mimi_claim_check \
-  --vault path/to/PetVault/vault \
-  --request "Check whether this claim packet has enough material" \
+  --output ~/PetVault/reports/2026-07-06_Mimi_bill_explain \
+  --vault ~/PetVault/vault \
+  --request "帮我解释这张账单" \
   --pet-name Mimi \
   --pdf-policy required
-```
 
-More detailed usage, boundaries, and report-type documentation are in [`pet-vault-skill/README.md`](pet-vault-skill/README.md).
+# Query the knowledge base
+python pet-vault-skill/scripts/query_knowledge_base.py "等待期是什么意思" \
+  --domain insurance --jurisdiction US --language zh --limit 3
 
-## Local Knowledge Hub
-
-PetVault now includes a first-version **local knowledge hub** for pet owners who need bill explanation, insurance claim preparation, long-term medical timelines, and emergency-boundary routing. It is rule-first: bills, payments, insurance, claims, and medical-record organization default to a PDF report, while pure knowledge questions use the local KB for a short cited answer.
-
-P0 scope covers the United States and China, Chinese and English, and USD/CNY/RMB. HKD, SGD, and JPY are recognized as P1 currencies. Insurance output is conditional only; medical output explains terms and red flags but does not diagnose.
-
-Useful commands:
-
-```bash
+# Validate KB structure
 python pet-vault-skill/scripts/validate_kb.py pet-vault-skill
+
+# Build KB index
 python pet-vault-skill/scripts/build_kb_index.py pet-vault-skill
-python pet-vault-skill/scripts/query_knowledge_base.py "等待期是什么意思" --domain insurance --jurisdiction US --language zh --limit 3
-python pet-vault-skill/scripts/validate_billing.py pet-vault-skill
-python pet-vault-skill/scripts/validate_insurance_output.py pet-vault-skill
 ```
 
 ## Validation
 
-Fast checks:
-
 ```bash
-python pet-vault-skill/tests/test_pet_vault_skill.py
+# Run all tests
+python -m unittest discover -s pet-vault-skill/tests -p "test_*.py" -v
+
+# Compile check
 python -m compileall -q pet-vault-skill/scripts pet-vault-skill/adapters pet-vault-skill/tests
 ```
 
-GitHub CI runs the same repository-local checks from a clean checkout.
+GitHub CI runs the same checks from a clean checkout.
 
-Optional maintainer check: if your machine has the Codex skill validator available, you can run `quick_validate.py`, but it is not a hard dependency for the open-source repository.
+## Knowledge Base
 
-## Push Target
-
-Target repository: [Kingslayer-bot/pet-vault-skill](https://github.com/Kingslayer-bot/pet-vault-skill)
+- **32 articles** across 7 domains (billing, insurance, medical, nutrition, safety, jurisdiction, travel)
+- **20 sources** (US/CN/HK/SG/JP/global, tier 1-4)
+- **53 eval cases** in `.agents/eval_cases/`
+- **40 KNOWN_TERMS** for Chinese query matching
+- Safety boundaries: no diagnosis, no coverage guarantees, no brand recommendations
 
 ## License
 
