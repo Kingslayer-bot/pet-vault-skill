@@ -1,0 +1,55 @@
+# PDF Render Eval Cases — Golden tests for LaTeX conversion
+
+cases:
+  - id: table_conversion
+    description: "Markdown tables must convert to longtable in LaTeX"
+    input: |
+      # Report
+      | Item | Amount |
+      |------|--------|
+      | Exam | $80.00 |
+      | X-Ray | $333.00 |
+    must_contain_latex:
+      - "\\begin{longtable}"
+      - "\\end{longtable}"
+      - "\\toprule"
+      - "\\bottomrule"
+
+  - id: bold_conversion
+    description: "Bold text must convert to textbf"
+    input: |
+      # Report
+      This is **important** text.
+    must_contain_latex:
+      - "\\textbf{important}"
+
+  - id: italic_conversion
+    description: "Italic text must convert to textit"
+    input: |
+      # Report
+      This is *emphasized* text.
+    must_contain_latex:
+      - "\\textit{emphasized}"
+
+  - id: section_conversion
+    description: "Headings must convert to section/subsection"
+    input: |
+      # Main Title
+      ## Sub Title
+      ### Sub Sub Title
+    must_contain_latex:
+      - "\\section{Main Title}"
+      - "\\subsection{Sub Title}"
+      - "\\subsubsection{Sub Sub Title}"
+
+  - id: list_conversion
+    description: "Lists must convert to itemize"
+    input: |
+      # Report
+      - Item 1
+      - Item 2
+    must_contain_latex:
+      - "\\begin{itemize}"
+      - "\\item Item 1"
+      - "\\item Item 2"
+      - "\\end{itemize}"

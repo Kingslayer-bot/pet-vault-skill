@@ -1,0 +1,118 @@
+# Pipeline Registry — Maps 13 agents to 4 pipelines
+# This is the canonical agent-to-pipeline mapping.
+
+pipelines:
+  intake:
+    name: Intake Pipeline
+    description: "Classify, extract, index, and store incoming materials"
+    agents:
+      - material_organizer_agent
+      - pet_profile_inference_agent
+    prompts:
+      - prompts/material_organizer_agent.md
+      - prompts/pet_profile_inference_agent.md
+    scripts:
+      - scripts/ingest_materials.py
+      - scripts/classify_materials.py
+      - scripts/normalize_markdown.py
+    input: raw materials (files)
+    output: materials_index.json, cleaned markdown, SQLite records
+
+  domain_analysis:
+    name: Domain Analysis Pipeline
+    description: "Analyze bills, medical records, insurance documents, and timelines"
+    agents:
+      - bill_analysis_agent
+      - insurance_check_agent
+      - appointment_timeline_agent
+      - chronic_care_review_agent
+      - family_summary_agent
+    prompts:
+      - prompts/bill_analysis_agent.md
+      - prompts/insurance_check_agent.md
+      - prompts/appointment_timeline_agent.md
+      - prompts/chronic_care_review_agent.md
+      - prompts/family_summary_agent.md
+    scripts:
+      - scripts/query_knowledge_base.py
+    input: materials_index.json
+    output: analysis results (bill items, claim summary, timeline, findings)
+
+  report:
+    name: Report Pipeline
+    description: "Compose report.md, render LaTeX, compile PDF, run QA"
+    agents:
+      - report_composer_agent
+      - latex_renderer_agent
+      - quality_inspector_agent
+      - clinic_soap_draft_agent
+      - clinic_client_summary_agent
+    prompts:
+      - prompts/report_composer_agent.md
+      - prompts/latex_renderer_agent.md
+      - prompts/quality_inspector_agent.md
+      - prompts/clinic_soap_draft_agent.md
+      - prompts/clinic_client_summary_agent.md
+    scripts:
+      - scripts/build_report.py
+      - scripts/markdown_to_latex.py
+      - scripts/compile_pdf.py
+      - scripts/inspect_pdf_layout.py
+      - scripts/report_sanitizer.py
+    input: materials_index.json + analysis results
+    output: report.md, report.tex, report.pdf, manifest.json, qa_result.json
+
+  safety_routing:
+    name: Safety & Routing Pipeline
+    description: "Route requests, detect emergencies, enforce guardrails"
+    agents:
+      - orchestrator_agent
+    prompts:
+      - prompts/orchestrator_agent.md
+    scripts:
+      - scripts/petvault_dispatch.py
+      - scripts/validate_insurance_output.py
+      - scripts/validate_billing.py
+    input: user request text
+    output: route decision, emergency/f forbidden responses
+
+agent_mapping:
+  material_organizer_agent:
+    pipeline: intake
+    original_role: "Classify, rename, extract, clean, index, and store materials"
+  pet_profile_inference_agent:
+    pipeline: intake
+    original_role: "Infer pet identity and scenario for internal report selection"
+  bill_analysis_agent:
+    pipeline: domain_analysis
+    original_role: "Categorize bill items and explain possible relationship to care actions"
+  insurance_check_agent:
+    pipeline: domain_analysis
+    original_role: "List existing and missing claim materials and risk points"
+  appointment_timeline_agent:
+    pipeline: domain_analysis
+    original_role: "Merge appointments, visits, tests, prescriptions, bills by date"
+  chronic_care_review_agent:
+    pipeline: domain_analysis
+    original_role: "Summarize recurring visits, labs, medication, monthly spending"
+  family_summary_agent:
+    pipeline: domain_analysis
+    original_role: "Produce restrained summaries for family decisions"
+  report_composer_agent:
+    pipeline: report
+    original_role: "Combine outputs into report.md"
+  latex_renderer_agent:
+    pipeline: report
+    original_role: "Convert Markdown to LaTeX, compile, log build status"
+  quality_inspector_agent:
+    pipeline: report
+    original_role: "Verify sources, boundaries, forbidden terms, files, readable output"
+  clinic_soap_draft_agent:
+    pipeline: report
+    original_role: "Prepare SOAP-style draft from clinician notes"
+  clinic_client_summary_agent:
+    pipeline: report
+    original_role: "Prepare client-facing explanation draft for clinic side"
+  orchestrator_agent:
+    pipeline: safety_routing
+    original_role: "Understand request, choose report type, coordinate workflow"

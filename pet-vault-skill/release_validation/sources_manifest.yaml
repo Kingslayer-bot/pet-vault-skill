@@ -1,0 +1,102 @@
+# Sources Manifest — 验证语料来源记录
+
+sources:
+  - id: case_001_simple_invoice
+    source_url: "public_veterinary_sample_001"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "简单宠物医疗发票案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_001_simple_invoice/"
+    notes: "基于公开兽医服务价格示例创建，无真实用户数据"
+
+  - id: case_002_diagnostics
+    source_url: "public_veterinary_sample_002"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "诊断检查发票案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_002_diagnostics/"
+    notes: "基于公开化验检查项目示例创建"
+
+  - id: case_003_medication
+    source_url: "public_pharmacy_sample_003"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "药品处方发票案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_003_medication/"
+    notes: "基于公开处方药价格示例创建"
+
+  - id: case_004_emergency
+    source_url: "public_emergency_sample_004"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "急诊护理发票案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_004_emergency/"
+    notes: "基于公开急诊服务价格示例创建"
+
+  - id: case_005_dental_surgery
+    source_url: "public_surgical_sample_005"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "牙科/手术类发票案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_005_dental_surgery/"
+    notes: "基于公开手术服务价格示例创建"
+
+  - id: case_006_insurance_claim
+    source_url: "public_insurance_sample_006"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "保险理赔边界案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_006_insurance_claim/"
+    notes: "基于公开保险理赔教育材料创建"
+
+  - id: case_007_mixed_materials
+    source_url: "public_mixed_sample_007"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "混合账单+医疗记录案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_007_mixed_materials/"
+    notes: "基于公开混合材料示例创建"
+
+  - id: case_008_weak_input
+    source_url: "public_weak_sample_008"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "弱输入/模糊账单案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_008_weak_input/"
+    notes: "基于公开不完整信息示例创建"
+
+  - id: case_009_multi_currency
+    source_url: "public_currency_sample_009"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "多币种发票案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_009_multi_currency/"
+    notes: "基于公开国际兽医服务价格示例创建"
+
+  - id: case_010_discount_payment
+    source_url: "public_discount_sample_010"
+    source_type: "synthetic_derived_from_public_samples"
+    accessed_date: "2026-07-08"
+    used_as: "折扣/付款/退款重型案例"
+    contains_pii: false
+    redaction_required: true
+    local_fixture: "corpus/case_010_discount_payment/"
+    notes: "基于公开折扣示例创建"

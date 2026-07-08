@@ -1,0 +1,43 @@
+# Domain Analysis Pipeline — Bill, medical, insurance analysis
+pipeline: domain_analysis
+version: "1.0"
+
+steps:
+  - id: analyze_bills
+    description: "Categorize bill items, parse amounts, identify high-value items"
+    agents: [bill_analysis_agent]
+
+  - id: check_insurance
+    description: "List existing/missing claim materials, risk points"
+    agents: [insurance_check_agent]
+
+  - id: build_timeline
+    description: "Merge appointments, visits, tests, prescriptions by date"
+    agents: [appointment_timeline_agent]
+
+  - id: chronic_review
+    description: "Summarize recurring visits, labs, medication, monthly spending"
+    agents: [chronic_care_review_agent]
+    condition: "report_type == 'chronic_review'"
+
+  - id: family_summary
+    description: "Produce restrained summaries for family decisions"
+    agents: [family_summary_agent]
+    condition: "report_type == 'general'"
+
+agents:
+  - bill_analysis_agent
+  - insurance_check_agent
+  - appointment_timeline_agent
+  - chronic_care_review_agent
+  - family_summary_agent
+
+input:
+  - materials_index.json
+
+output:
+  - bill_items list
+  - claim_summary (existing/missing)
+  - timeline_nodes
+  - medical_findings
+  - charge_totals

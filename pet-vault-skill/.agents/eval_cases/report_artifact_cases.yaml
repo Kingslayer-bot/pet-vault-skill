@@ -1,0 +1,77 @@
+# Report Artifact Eval Cases — Tests PDF/report quality
+
+cases:
+  - id: bill_report_has_reconstructed_section
+    name: "Bill report includes reconstructed bill section"
+    input:
+      report_type: "bill_explain"
+      materials:
+        - type: "bill"
+          text: "血常规 120 元；B超 350 元"
+    expected:
+      must_contain:
+        - "账单复刻区"
+        - "收费项目"
+      must_not_contain:
+        - "insurance_policy"
+        - "lab_report"
+        - "confidence"
+        - "routing"
+
+  - id: bill_report_no_raw_image_embedding
+    name: "Bill report does not embed raw invoice images"
+    input:
+      report_type: "bill_explain"
+    expected:
+      must_not_contain:
+        - "![invoice]"
+        - "![发票]"
+        - "includegraphics"
+
+  - id: report_no_internal_leakage
+    name: "Report output has no internal leakage"
+    input:
+      report_type: "bill_explain"
+    expected:
+      must_not_contain:
+        - "insurance_policy"
+        - "claim_document"
+        - "lab_report"
+        - "extracted"
+        - "indexed_only"
+        - "置信度"
+        - "routing"
+        - "dispatch"
+
+  - id: missing_amount_shows_pending
+    name: "Missing amount case uses pending label"
+    input:
+      report_type: "bill_explain"
+      materials:
+        - type: "bill"
+          text: "无金额信息"
+    expected:
+      must_contain:
+        - "待确认"
+
+  - id: payment_not_counted_as_charge
+    name: "Payment is not counted as charge"
+    input:
+      report_type: "bill_explain"
+      materials:
+        - type: "bill"
+          text: "血常规 120 元；付款 -120 元"
+    expected:
+      charge_total: 120.0
+
+  - id: multi_currency_deterministic
+    name: "Multi-currency output is deterministic"
+    input:
+      report_type: "bill_explain"
+      materials:
+        - type: "bill"
+          text: "Exam $80.00；血常规 120 元"
+    expected:
+      must_contain:
+        - "USD"
+        - "CNY"

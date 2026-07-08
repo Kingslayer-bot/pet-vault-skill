@@ -31,6 +31,51 @@ Use the bundled Phase 1 runner when the user provides local files or asks for a 
 python scripts/run_pipeline.py --input path/to/materials --output ~/PetVault/reports/2026-07-06_Mimi_bill_explain --vault ~/PetVault/vault --request "帮我解释这张账单" --pet-name Mimi --pdf-policy required
 ```
 
+## 4-Pipeline Architecture
+
+PetVault uses 4 logical pipelines for processing:
+
+1. **Safety & Routing Pipeline** (`petvault_dispatch.py`)
+   - Emergency detection → immediate safety response
+   - Forbidden request detection → safe completion
+   - Knowledge vs report routing
+
+2. **Intake / Material Understanding Pipeline** (`material_ops.py`)
+   - Material classification (invoice, bill, insurance, lab, etc.)
+   - Date, pet name, clinic extraction
+   - Text normalization
+
+3. **Domain Analysis Pipeline** (`billing_ops.py`, `petvault_core.py`)
+   - Bill item extraction and categorization
+   - Timeline construction
+   - Insurance material completeness check
+   - Medical findings extraction
+
+4. **Report & Rendering Pipeline** (`report_sanitizer.py`, `latex_ops.py`, `manifest_ops.py`)
+   - Report composition
+   - Internal term sanitization
+   - LaTeX rendering
+   - PDF compilation
+   - QA inspection
+   - User manifest generation
+
+## Examples
+
+See `examples/` for synthetic demonstrations of common user flows:
+- `bill_explain/` — Bill explanation with uploaded invoice
+- `knowledge_query/` — Knowledge-only pet care question
+- `emergency_guardrail/` — Emergency symptom detection
+- `insurance_boundary/` — Insurance/medical boundary handling
+
+## Eval Cases
+
+See `.agents/eval_cases/` for golden test cases:
+- `internal_leakage_cases.yaml` — Tests sanitizer behavior
+- `pdf_render_cases.yaml` — Tests LaTeX conversion
+- `billing_report_cases.yaml` — Tests billing extraction behavior
+- `skill_workflow_cases.yaml` — Tests user task routing
+- `emergency_routing_cases.yaml` — Tests emergency detection
+
 For unified dispatch routing:
 
 ```bash
@@ -97,6 +142,36 @@ PetVault should be described as a local knowledge hub when explaining product be
 8. Compile PDF when a TeX engine is available. With `--pdf-policy required`, missing `report.pdf` is a blocking QA issue.
 9. Inspect for missing files, empty PDF, obvious compile errors, forbidden report terms, billing extraction gaps, and layout risk notes.
 10. Write structured data and report metadata into the SQLite vault after QA, including `pdf_status` and `qa_status`.
+
+## Safety Boundaries
+
+**Must NOT do:**
+- Replace veterinary diagnosis or treatment decisions
+- Provide legal judgment or advice
+- Promise insurance claim outcomes
+- Accuse hospitals of fraud or overcharging
+- Expose internal terms in user-facing output
+- Embed raw invoice images directly into PDF (use reconstructed bill section instead)
+
+**Must DO:**
+- Mark uncertain information with explicit labels
+- Base claims only on uploaded materials
+- Route emergency symptoms to immediate safety guidance
+- Block requests to falsify records
+- Sanitize all user-visible output
+- Re-render extracted bill data into clean, user-readable tables
+
+## PDF Report Quality
+
+Bill explanation PDFs use **extracted structured data**, not raw image dumps:
+
+1. Extract bill information from uploaded materials
+2. Normalize charge/payment/discount/tax categories
+3. Render a clean **reconstructed bill section** (账单复刻区)
+4. Explain why each major fee exists
+5. Show what is paid, what is discount, what is charge, and what needs confirmation
+
+The reconstructed bill section is for understanding only and does not replace original documents.
 
 ## Chat Output Policy
 
@@ -168,14 +243,23 @@ Read `references/local_knowledge_base.md` when extending crawl targets, schemas,
 ## Bundled Resources
 
 - `scripts/run_pipeline.py`: end-to-end Phase 1 pipeline.
-- `scripts/init_vault.py`: create local vault directories and SQLite tables.
-- `scripts/ingest_materials.py`: copy source materials, extract text where possible, and build a material index.
-- `scripts/classify_materials.py`: classify bills, invoices, prescriptions, lab reports, policies, claim documents, visits, medication notes, and pet profiles.
-- `scripts/normalize_markdown.py`: normalize raw text into stable Markdown.
-- `scripts/latex_escape.py`: escape LaTeX-sensitive text.
-- `scripts/markdown_to_latex.py`: convert generated Markdown into report LaTeX.
-- `scripts/build_report.py`: compose the caregiver-facing Markdown report, manifest, QA result, and SQLite report index.
-- `scripts/build_report.py`: compose the caregiver-facing Markdown report, plus B-side demo summaries when requested.
+- `scripts/petvault_dispatch.py`: unified request dispatcher (emergency/knowledge/report routing).
+- `scripts/material_ops.py`: material classification, extraction, and normalization.
+- `scripts/billing_ops.py`: amount parsing, bill item extraction, charge totals.
+- `scripts/report_sanitizer.py`: internal term removal from user-facing output.
+- `scripts/latex_ops.py`: Markdown to LaTeX conversion with table support.
+- `scripts/manifest_ops.py`: internal and user-facing manifest construction.
+- `scripts/agent_registry_loader.py`: loads forbidden terms from `.agents/forbidden_terms_registry.yaml`.
+- `scripts/query_knowledge_base.py`: search curated local KB articles.
+- `scripts/compile_pdf.py`: compile with XeLaTeX or latexmk when available.
+- `scripts/inspect_pdf_layout.py`: check generated report artifacts.
+- `scripts/quick_validate.py`: validate the skill package.
+- `config/*.yaml`: agent roles, material types, safety rules, report checks.
+- `schemas/*.json`: JSON schemas for generated indexes and QA data.
+- `templates/*.tex.j2`: LaTeX report templates.
+- `kb/articles/*.md` and `kb/sources.yaml`: curated local knowledge base.
+- `examples/`: synthetic user flow demonstrations.
+- `.agents/eval_cases/*.yaml`: golden test cases for leakage, routing, rendering.
 - `scripts/compile_pdf.py`: compile with XeLaTeX or latexmk when available.
 - `scripts/inspect_pdf_layout.py`: check generated report artifacts and obvious layout risks.
 - `scripts/query_knowledge_base.py`: search curated local KB articles for knowledge-only questions.

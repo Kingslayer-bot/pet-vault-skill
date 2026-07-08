@@ -1,0 +1,76 @@
+# Prompt Boundaries — What's user-visible vs internal
+
+# Content that MUST NEVER appear in user-facing reports or chat responses
+forbidden_in_user_output:
+  - PRD
+  - Harness
+  - HMW
+  - POV
+  - 产品需求文档
+  - 设计提案约束
+  - 开发者校验
+  - [FORBIDDEN]
+  - [INTERNAL]
+  - [DEBUG]
+  - dispatch
+  - routing
+  - classification
+  - intent
+  - debug
+  - trace
+  - harness
+  - internal
+
+# Internal type codes that must be translated before user display
+type_code_translations:
+  invoice: 发票/收据
+  bill: 账单/费用明细
+  insurance_policy: 保险保单
+  claim_document: 理赔材料
+  lab_report: 化验报告
+  medical_report: 检查报告
+  prescription: 处方
+  appointment: 预约记录
+  clinic_communication: 医院沟通记录
+  pet_profile: 宠物资料
+  unknown: 待分类材料
+
+# Internal status codes that must be translated
+status_code_translations:
+  extracted: 已提取
+  indexed_only: 已索引（未解析正文）
+  encoding_repaired: 已修复编码
+  indexed_with_manual_transcription: 已索引（含人工核对）
+
+# Internal metadata fields that must NOT appear in user manifests
+internal_manifest_fields:
+  - pdf_policy
+  - routing.reason
+  - routing.request_text_present
+  - qa_result.checks (internal dimension names)
+
+# User-visible manifest fields (safe to expose)
+user_manifest_fields:
+  - id
+  - pet_name
+  - report_type
+  - created_at
+  - pdf_status
+  - materials (translated type labels only)
+  - outputs
+  - warnings
+
+# Routing reason translations (for user_manifest if needed)
+routing_reason_translations:
+  request_mentions_claim_or_insurance: 用户请求涉及理赔或保险
+  request_mentions_billing: 用户请求涉及账单
+  request_mentions_timeline_or_handoff: 用户请求涉及时间线或转诊
+  request_mentions_chronic_review: 用户请求涉及慢病复盘
+  request_mentions_medical_summary: 用户请求涉及医疗报告
+  request_mentions_clinic_client_summary: 用户请求涉及医院端解释
+  materials_include_claim_or_policy: 材料包含理赔或保单
+  materials_include_bill_or_invoice: 材料包含账单或发票
+  materials_include_medical_records: 材料包含医疗记录
+  materials_include_visit_timeline_signals: 材料包含就诊时间线信号
+  fallback_general: 默认综合报告
+  explicit_report_type: 用户指定报告类型
