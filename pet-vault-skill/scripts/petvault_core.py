@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import argparse
 import hashlib
@@ -15,11 +15,62 @@ try:
 except ImportError:
     _yaml = None
 
-
 SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPT_DIR.parent
 UNKNOWN_TEXT = "待确认"
 AUTO_REPORT_TYPE = "auto"
+
+# Compatibility imports from extracted modules
+from latex_ops import (  # noqa: E402
+    latex_escape,
+    _convert_inline_latex,
+    _is_table_line,
+    _is_table_separator,
+    _parse_table_rows,
+    _table_to_longtable,
+    _is_table_separator_str,
+    markdown_to_latex_body,
+    COVER_TITLES,
+    render_latex as _render_latex,
+)
+from manifest_ops import (  # noqa: E402
+    INTERNAL_TYPE_MAP,
+    report_id_for,
+    build_internal_manifest,
+    build_user_manifest,
+)
+from billing_ops import (  # noqa: E402
+    BILL_CATEGORIES,
+    normalize_currency,
+    parse_amount_number,
+    classify_money_kind,
+    parse_money_mentions,
+    extract_amounts,
+    build_bill_items,
+    format_money,
+    summarize_charge_totals,
+    format_currency_totals,
+)
+from material_ops import (  # noqa: E402
+    MATERIAL_LABELS,
+    EXPLICIT_TYPE_ALIASES,
+    NEGATED_POLICY_PATTERNS,
+    read_source_text,
+    explicit_material_type,
+    classify_material,
+    extract_date,
+    extract_pet_name,
+    extract_clinic,
+    normalize_markdown,
+)
+from pdf_ops import (  # noqa: E402
+    compile_pdf,
+    inspect_report,
+)
+from bill_render_ops import (  # noqa: E402
+    render_reconstructed_bill_section,
+    render_bill_summary_text,
+)
 
 _KB_RULES_CACHE: dict[str, dict] = {}
 
@@ -98,23 +149,6 @@ def detect_emergency(request_text: str) -> bool:
     return False
 
 
-FORBIDDEN_TERMS = [
-    "PRD",
-    "Harness",
-    "HMW",
-    "POV",
-    "产品需求文档",
-    "设计提案约束",
-    "开发者校验",
-]
-
-NEGATIVE_CLAIMS = [
-    "医院乱收费",
-    "一定可以理赔",
-    "确诊为",
-    "建议立即治疗",
-]
-
 REPORT_TITLES = {
     "general": "宠物资料综合整理报告",
     "medical_summary": "兽医报告简明解读",
@@ -124,58 +158,6 @@ REPORT_TITLES = {
     "chronic_review": "慢病月度复盘报告",
     "clinic_client_summary": "医院端客户解释材料草稿",
 }
-
-MATERIAL_LABELS = [
-    ("invoice", ["发票", "收据", "invoice", "receipt"]),
-    ("bill", ["账单", "费用", "收费", "bill", "expense", "charge", "payment"]),
-    ("insurance_policy", ["保单", "保险", "policy"]),
-    ("claim_document", ["理赔", "报销", "claim"]),
-    ("lab_report", ["化验", "血常规", "生化", "尿检", "lab", "alt", "crea", "bun"]),
-    ("medical_report", ["检查报告", "影像", "x光", "x-ray", "超声", "b超", "report", "imaging"]),
-    ("prescription", ["处方", "用药", "药品", "prescription", "medication"]),
-    ("appointment", ["预约", "复诊", "就诊", "appointment", "follow-up"]),
-    ("clinic_communication", ["沟通", "医生说", "微信", "communication"]),
-    ("pet_profile", ["宠物", "品种", "年龄", "绝育", "profile"]),
-]
-
-BILL_CATEGORIES = {
-    "检查": ["血常规", "生化", "x光", "x-ray", "b超", "超声", "ct", "检查", "化验"],
-    "治疗": ["手术", "处置", "输液", "治疗", "住院", "清创"],
-    "药品": ["药", "处方", "medication", "tablet", "capsule", "针剂"],
-    "耗材": ["导管", "留置针", "敷料", "耗材", "纱布"],
-    "服务": ["挂号", "诊疗", "护理", "服务", "会诊"],
-}
-
-EXPLICIT_TYPE_ALIASES = {
-    "invoice": "invoice",
-    "receipt": "invoice",
-    "发票": "invoice",
-    "收据": "invoice",
-    "bill": "bill",
-    "expense": "bill",
-    "账单": "bill",
-    "费用": "bill",
-    "insurance_policy": "insurance_policy",
-    "policy": "insurance_policy",
-    "保单": "insurance_policy",
-    "claim_document": "claim_document",
-    "claim": "claim_document",
-    "理赔": "claim_document",
-    "lab_report": "lab_report",
-    "lab": "lab_report",
-    "medical_report": "medical_report",
-    "prescription": "prescription",
-    "appointment": "appointment",
-    "pet_profile": "pet_profile",
-}
-
-NEGATED_POLICY_PATTERNS = [
-    r"policy terms? (?:are )?not visible",
-    r"no (?:insurance )?policy",
-    r"policy (?:is )?missing",
-    r"保单.*(?:未见|缺失|没有|未上传|不可见)",
-    r"未见.*保单",
-]
 
 CLAIM_REQUIRED_TYPES = {
     "insurance_policy": "保单",
@@ -269,108 +251,6 @@ def init_vault(vault_dir: Path) -> None:
         conn.commit()
 
 
-def read_source_text(path: Path) -> tuple[str, str]:
-    suffix = path.suffix.lower()
-    if suffix in {".txt", ".md", ".csv", ".json", ".tex"}:
-        raw = path.read_bytes()
-        for encoding in ("utf-8-sig", "utf-8", "gb18030", "gbk"):
-            try:
-                return raw.decode(encoding), "extracted"
-            except UnicodeDecodeError:
-                continue
-        return raw.decode("utf-8", errors="replace"), "encoding_repaired"
-    return f"[待确认] Phase 1 已索引文件，但未解析该格式正文：{path.name}", "indexed_only"
-
-
-def explicit_material_type(text: str) -> str | None:
-    for line in text.splitlines()[:12]:
-        normalized = line.strip().lower()
-        if not normalized:
-            continue
-        if "material type" not in normalized and "材料类型" not in normalized:
-            continue
-        for alias, material_type in EXPLICIT_TYPE_ALIASES.items():
-            if alias.lower() in normalized:
-                return material_type
-    return None
-
-
-def classify_material(name: str, text: str) -> tuple[str, float]:
-    explicit_type = explicit_material_type(text)
-    if explicit_type:
-        return explicit_type, 0.98
-
-    haystack = f"{name}\n{text}".lower()
-    file_name = name.lower()
-    scores = {material_type: 0.0 for material_type, _labels in MATERIAL_LABELS}
-    best_type = "unknown"
-    for material_type, labels in MATERIAL_LABELS:
-        for label in labels:
-            label_lower = label.lower()
-            if label_lower in haystack:
-                scores[material_type] += 1.0
-            if label_lower in file_name:
-                scores[material_type] += 2.0
-
-    if re.search(r"\b(invoice|receipt)\b|发票号|invoice no|balance due|amount due", haystack):
-        scores["invoice"] += 3.0
-    if re.search(r"账单|费用明细|\bbill\b|\bcharge\b|收费|付款|payment", haystack):
-        scores["bill"] += 2.5
-    if re.search(r"policy number|coverage|deductible|premium|waiting period|保单号|免赔额|等待期|承保", haystack):
-        scores["insurance_policy"] += 3.0
-    if re.search(r"claim form|claim packet|reimbursement|理赔申请|报销材料", haystack):
-        scores["claim_document"] += 2.5
-    if any(re.search(pattern, haystack) for pattern in NEGATED_POLICY_PATTERNS):
-        scores["insurance_policy"] = max(0.0, scores["insurance_policy"] - 4.0)
-
-    best_type, best_score = max(scores.items(), key=lambda item: item[1])
-    if best_score <= 0:
-        return "unknown", 0.35
-    confidence = min(0.45 + best_score * 0.12, 0.95)
-    return best_type, round(confidence, 2)
-
-
-def extract_date(text: str, fallback_name: str = "") -> str | None:
-    combined = f"{fallback_name}\n{text}"
-    match = re.search(r"(20\d{2})[-/.年\s](\d{1,2})[-/.月\s](\d{1,2})", combined)
-    if not match:
-        return None
-    year, month, day = match.groups()
-    return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
-
-
-def extract_pet_name(text: str, fallback: str | None = None) -> str | None:
-    patterns = [
-        r"宠物[：: ]+([A-Za-z0-9_\-\u4e00-\u9fff]+)",
-        r"宠物名称[：: ]+([A-Za-z0-9_\-\u4e00-\u9fff]+)",
-        r"pet[：: ]+([A-Za-z0-9_\-]+)",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, text, flags=re.IGNORECASE)
-        if match:
-            return match.group(1).strip()
-    return fallback
-
-
-def extract_clinic(text: str) -> str | None:
-    patterns = [
-        r"医院[：: ]+([^\n，,;；]+)",
-        r"诊所[：: ]+([^\n，,;；]+)",
-        r"clinic[：: ]+([^\n,;]+)",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, text, flags=re.IGNORECASE)
-        if match:
-            return match.group(1).strip()
-    return None
-
-
-def normalize_markdown(text: str, source_name: str) -> str:
-    lines = [line.strip() for line in text.replace("\r\n", "\n").replace("\r", "\n").split("\n")]
-    cleaned = [line for line in lines if line]
-    return "# Source Material\n\n" + f"- Source file: {source_name}\n\n" + "\n".join(cleaned) + "\n"
-
-
 def ingest_materials(input_dir: Path, vault_dir: Path, default_pet_name: str | None = None) -> dict:
     init_vault(vault_dir)
     materials = []
@@ -410,131 +290,6 @@ def ingest_materials(input_dir: Path, vault_dir: Path, default_pet_name: str | N
     index_data = {"materials": materials, "created_at": datetime.now().isoformat(timespec="seconds")}
     json_dump(vault_dir / "structured" / "materials_index.json", index_data)
     return index_data
-
-
-def normalize_currency(token: str) -> str:
-    value = token.strip().upper()
-    if value in {"$", "US$", "USD"}:
-        return "USD"
-    if value in {"元", "RMB", "CNY", "¥", "￥"}:
-        return "CNY"
-    if value in {"HKD", "SGD", "JPY"}:
-        return value
-    return value or "UNKNOWN"
-
-
-def parse_amount_number(raw_amount: str) -> float:
-    value = raw_amount.strip()
-    negative = False
-    if value.startswith("(") and value.endswith(")"):
-        negative = True
-        value = value[1:-1]
-    value = value.replace(",", "")
-    if value.startswith("-"):
-        negative = True
-        value = value[1:]
-    amount = float(value)
-    return -amount if negative else amount
-
-
-def classify_money_kind(line: str, amount: float) -> str:
-    lower_line = line.lower()
-    if any(keyword in lower_line for keyword in ["discount", "折扣", "优惠", "adjustment"]):
-        return "discount"
-    if any(keyword in lower_line for keyword in ["refund", "退款", "退费"]):
-        return "refund"
-    if amount < 0 or any(keyword in lower_line for keyword in ["payment", "paid", "付款", "支付", "已付", "carecredit"]):
-        return "payment"
-    if any(keyword in lower_line for keyword in ["balance", "余额"]):
-        return "balance"
-    if any(keyword in lower_line for keyword in ["total", "subtotal", "合计", "总计", "总收费"]):
-        return "total"
-    return "charge"
-
-
-def parse_money_mentions(text: str) -> list[dict]:
-    mentions = []
-    patterns = [
-        re.compile(
-            r"(?P<currency>US\$|USD|RMB|CNY|HKD|SGD|JPY|\$|¥|￥)\s*(?P<amount>\(?-?\d[\d,]*(?:\.\d+)?\)?)",
-            flags=re.IGNORECASE,
-        ),
-        re.compile(
-            r"(?P<amount>\(?-?\d[\d,]*(?:\.\d+)?\)?)\s*(?P<currency>元|RMB|CNY|HKD|SGD|JPY|USD|US\$|\$|¥|￥)",
-            flags=re.IGNORECASE,
-        ),
-        re.compile(
-            r"\((?P<currency>US\$|USD|RMB|CNY|HKD|SGD|JPY|\$|¥|￥)\s*(?P<amount>-?\d[\d,]*(?:\.\d+)?)\)",
-            flags=re.IGNORECASE,
-        ),
-    ]
-    used_spans = []
-    for pattern in patterns:
-        for match in pattern.finditer(text):
-            if any(max(start, match.start()) < min(end, match.end()) for start, end in used_spans):
-                continue
-            try:
-                amount = parse_amount_number(match.group("amount"))
-            except ValueError:
-                continue
-            raw_match = match.group(0).strip()
-            if raw_match.startswith("(") and raw_match.endswith(")") and amount > 0:
-                amount = -amount
-            used_spans.append((match.start(), match.end()))
-            mentions.append(
-                {
-                    "amount": amount,
-                    "currency": normalize_currency(match.group("currency")),
-                    "raw": raw_match,
-                    "start": match.start(),
-                    "end": match.end(),
-                    "kind": classify_money_kind(text, amount),
-                }
-            )
-    return sorted(mentions, key=lambda item: item["start"])
-
-
-def extract_amounts(text: str) -> list[float]:
-    return [mention["amount"] for mention in parse_money_mentions(text)]
-
-
-def build_bill_items(materials: list[dict]) -> list[dict]:
-    items = []
-    for material in materials:
-        text = material.get("text", "")
-        for raw_line in text.splitlines():
-            for segment in re.split(r"[;；]", raw_line):
-                segment = segment.strip()
-                if not segment:
-                    continue
-                for mention in parse_money_mentions(segment):
-                    category = "其他"
-                    lower_line = segment.lower()
-                    if mention["kind"] == "payment":
-                        category = "付款"
-                    elif mention["kind"] == "discount":
-                        category = "折扣"
-                    elif mention["kind"] == "refund":
-                        category = "退款"
-                    elif mention["kind"] == "balance":
-                        category = "余额"
-                    elif mention["kind"] == "total":
-                        category = "合计"
-                    else:
-                        for name, keywords in BILL_CATEGORIES.items():
-                            if any(keyword.lower() in lower_line for keyword in keywords):
-                                category = name
-                                break
-                    items.append({
-                        "name": segment,
-                        "amount": abs(mention["amount"]),
-                        "signed_amount": mention["amount"],
-                        "currency": mention["currency"],
-                        "kind": mention["kind"],
-                        "category": category,
-                        "source_file": material["source_file"],
-                    })
-    return items
 
 
 def build_timeline_nodes(materials: list[dict]) -> list[dict]:
@@ -589,26 +344,6 @@ def build_medical_findings(materials: list[dict]) -> list[str]:
     return unique[:6]
 
 
-def format_money(amount: float, currency: str) -> str:
-    return f"{amount:.2f} {currency}"
-
-
-def summarize_charge_totals(bill_items: list[dict]) -> dict[str, float]:
-    totals: dict[str, float] = {}
-    charge_items = [item for item in bill_items if item.get("kind") == "charge"]
-    source_items = charge_items or [item for item in bill_items if item.get("kind") == "total"]
-    for item in source_items:
-        currency = item.get("currency") or "UNKNOWN"
-        totals[currency] = totals.get(currency, 0.0) + float(item.get("amount") or 0.0)
-    return totals
-
-
-def format_currency_totals(totals: dict[str, float]) -> str:
-    if not totals:
-        return "待确认"
-    return "；".join(format_money(amount, currency) for currency, amount in sorted(totals.items()))
-
-
 def build_report_markdown(report_type: str, pet_name: str, materials_index: dict) -> tuple[str, list[str]]:
     materials = materials_index.get("materials", [])
     warnings = []
@@ -637,19 +372,17 @@ def build_report_markdown(report_type: str, pet_name: str, materials_index: dict
         "## 使用材料",
     ]
     for material in materials:
-        lines.append(
-            "- "
-            f"{material['source_file']}：类型={material['type']}；"
-            f"日期={material.get('date') or UNKNOWN_TEXT}；"
-            f"宠物={material.get('pet_name') or UNKNOWN_TEXT}；"
-            f"医院={material.get('clinic') or UNKNOWN_TEXT}；"
-            f"置信度={material['confidence']}；"
-            f"状态={material.get('status') or UNKNOWN_TEXT}"
-        )
+        parts = [material['source_file']]
+        if material.get('date'):
+            parts.append(f"日期 {material['date']}")
+        if material.get('clinic'):
+            parts.append(f"医院 {material['clinic']}")
+        lines.append("- " + "，".join(parts))
 
     lines.extend(["", "## 事实"])
-    if material_types:
-        lines.append(f"- 当前材料覆盖类型：{', '.join(material_types)}。")
+    type_labels = [INTERNAL_TYPE_MAP.get(t, t) for t in material_types]
+    if type_labels:
+        lines.append(f"- 当前材料覆盖类型：{', '.join(type_labels)}。")
     lines.append("- 以下内容仅基于已上传材料整理，不补全材料中未出现的诊断、治疗结论或保单条款。")
     for material in materials:
         preview = material.get("text", "").replace("\n", " ").strip()[:140]
@@ -675,6 +408,10 @@ def build_report_markdown(report_type: str, pet_name: str, materials_index: dict
     elif report_type == "bill_explain":
         charge_items = [item for item in bill_items if item.get("kind") == "charge"]
         adjustment_items = [item for item in bill_items if item.get("kind") in {"payment", "discount", "balance"}]
+
+        # Reconstructed bill section (structured re-rendering, not raw image)
+        lines.append(render_reconstructed_bill_section(bill_items, charge_totals))
+
         lines.extend([
             "### 费用总览",
             f"- 当前识别到的收费项目合计约 {charge_total_summary}。",
@@ -795,81 +532,8 @@ def build_report_markdown(report_type: str, pet_name: str, materials_index: dict
     return "\n".join(lines) + "\n", warnings
 
 
-def latex_escape(text: str) -> str:
-    replacements = {
-        "\\": r"\textbackslash{}",
-        "&": r"\&",
-        "%": r"\%",
-        "$": r"\$",
-        "#": r"\#",
-        "_": r"\_",
-        "{": r"\{",
-        "}": r"\}",
-        "~": r"\textasciitilde{}",
-        "^": r"\textasciicircum{}",
-    }
-    return "".join(replacements.get(char, char) for char in text)
-
-
-def markdown_to_latex_body(markdown: str) -> str:
-    body = []
-    in_items = False
-    for raw_line in markdown.splitlines():
-        line = raw_line.rstrip()
-        if not line:
-            if in_items:
-                body.append(r"\end{itemize}")
-                in_items = False
-            body.append("")
-            continue
-        if line.startswith("# "):
-            if in_items:
-                body.append(r"\end{itemize}")
-                in_items = False
-            body.append(r"\section{" + latex_escape(line[2:].strip()) + "}")
-        elif line.startswith("## "):
-            if in_items:
-                body.append(r"\end{itemize}")
-                in_items = False
-            body.append(r"\subsection{" + latex_escape(line[3:].strip()) + "}")
-        elif line.startswith("### "):
-            if in_items:
-                body.append(r"\end{itemize}")
-                in_items = False
-            body.append(r"\subsubsection{" + latex_escape(line[4:].strip()) + "}")
-        elif line.startswith("- "):
-            if not in_items:
-                body.append(r"\begin{itemize}")
-                in_items = True
-            body.append(r"  \item " + latex_escape(line[2:].strip()))
-        else:
-            if in_items:
-                body.append(r"\end{itemize}")
-                in_items = False
-            body.append(latex_escape(line))
-    if in_items:
-        body.append(r"\end{itemize}")
-    return "\n".join(body)
-
-
 def render_latex(markdown: str, report_type: str, pet_name: str) -> str:
-    styles = (SKILL_DIR / "templates" / "styles.tex.j2").read_text(encoding="utf-8")
-    template_name = {
-        "medical_summary": "report_medical_summary.tex.j2",
-        "bill_explain": "report_bill_explain.tex.j2",
-        "claim_check": "report_claim_check.tex.j2",
-        "timeline": "report_timeline.tex.j2",
-        "chronic_review": "report_chronic_review.tex.j2",
-        "clinic_client_summary": "report_clinic_client_summary.tex.j2",
-    }.get(report_type, "report_general.tex.j2")
-    template = (SKILL_DIR / "templates" / template_name).read_text(encoding="utf-8")
-    title = REPORT_TITLES.get(report_type, REPORT_TITLES["general"])
-    return (
-        template.replace("{{ styles }}", styles)
-        .replace("{{ title }}", latex_escape(title))
-        .replace("{{ pet_name }}", latex_escape(pet_name or UNKNOWN_TEXT))
-        .replace("{{ body }}", markdown_to_latex_body(markdown))
-    )
+    return _render_latex(markdown, report_type, pet_name, UNKNOWN_TEXT)
 
 
 def update_local_db(
@@ -961,82 +625,6 @@ def _get_dynamic_forbidden_terms() -> list[str]:
     return terms
 
 
-def inspect_report(
-    output_dir: Path,
-    report_md: str,
-    pdf_required: bool = False,
-    materials_index: dict | None = None,
-) -> dict:
-    blocking = []
-    warnings = []
-    all_forbidden = FORBIDDEN_TERMS + NEGATIVE_CLAIMS + _get_dynamic_forbidden_terms()
-    for term in all_forbidden:
-        if term in report_md:
-            blocking.append(f"Forbidden or unsafe report term: {term}")
-    required_files = ["report.md", "report.tex", "manifest.json", "build.log"]
-    for file_name in required_files:
-        if not (output_dir / file_name).exists():
-            blocking.append(f"Missing output file: {file_name}")
-    if pdf_required and not (output_dir / "report.pdf").exists():
-        blocking.append("PDF was required but report.pdf is missing")
-    if (output_dir / "report.pdf").exists() and (output_dir / "report.pdf").stat().st_size == 0:
-        blocking.append("report.pdf exists but is empty")
-    tex = (output_dir / "report.tex").read_text(encoding="utf-8") if (output_dir / "report.tex").exists() else ""
-    if "longtable" not in tex:
-        warnings.append("LaTeX output does not reference longtable.")
-    fee_explanation_check = "passed"
-    if materials_index:
-        materials = materials_index.get("materials", [])
-        bill_like = [material for material in materials if material.get("type") in {"bill", "invoice", "unknown"}]
-        indexed_only_bill_like = [material for material in bill_like if material.get("status") == "indexed_only"]
-        no_bill_details = "当前材料未抽取到账单明细" in report_md
-        if no_bill_details and indexed_only_bill_like:
-            blocking.append("Bill/invoice material was indexed without OCR or transcription; fee explanation is incomplete.")
-            fee_explanation_check = "failed"
-        elif no_bill_details and bill_like:
-            blocking.append("Bill/invoice material did not produce charge items; fee explanation is incomplete.")
-            fee_explanation_check = "failed"
-    pdf_present = (output_dir / "report.pdf").exists()
-    build_log_text = (output_dir / "build.log").read_text(encoding="utf-8") if (output_dir / "build.log").exists() else ""
-    return {
-        "passed": not blocking,
-        "blocking_issues": blocking,
-        "warnings": warnings,
-        "checks": {
-            "source_integrity": "passed",
-            "identity_consistency": "warning" if "多只宠物" in report_md else "passed",
-            "visit_completeness": "passed",
-            "fee_explanation": fee_explanation_check,
-            "insurance_boundary": "passed" if "不承诺理赔结果" in report_md or "理赔" not in report_md else "warning",
-            "timeline": "passed",
-            "pdf_readability": "passed" if pdf_present else ("warning" if "No xelatex or latexmk found" in build_log_text else "skipped"),
-            "local_storage": "passed",
-        },
-    }
-
-
-def compile_pdf(tex_path: Path, output_dir: Path, skip: bool = False) -> tuple[bool, str]:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    build_log = output_dir / "build.log"
-    if skip:
-        message = "PDF compile skipped by --skip-pdf-compile.\n"
-        build_log.write_text(message, encoding="utf-8")
-        return True, message
-    engine = shutil.which("xelatex") or shutil.which("latexmk")
-    if not engine:
-        message = "No xelatex or latexmk found; PDF compile skipped.\n"
-        build_log.write_text(message, encoding="utf-8")
-        return False, message
-    if Path(engine).name.lower().startswith("latexmk"):
-        cmd = [engine, "-xelatex", "-interaction=nonstopmode", tex_path.name]
-    else:
-        cmd = [engine, "-interaction=nonstopmode", tex_path.name]
-    result = subprocess.run(cmd, cwd=output_dir, text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=120)
-    log = result.stdout + "\n" + result.stderr
-    build_log.write_text(log, encoding="utf-8")
-    return result.returncode == 0, log
-
-
 def auto_select_report_type(request_text: str | None, materials_index: dict) -> tuple[str, str]:
     request = (request_text or "").lower()
     materials = materials_index.get("materials", [])
@@ -1087,10 +675,6 @@ def resolve_report_type(report_type: str, request_text: str | None, materials_in
     }
 
 
-def report_id_for(report_type: str, pet_name: str, output_dir: Path) -> str:
-    return hashlib.sha1(f"{report_type}|{pet_name}|{output_dir}".encode("utf-8")).hexdigest()[:12]
-
-
 def run_pipeline(
     input_dir: Path,
     output_dir: Path,
@@ -1101,39 +685,33 @@ def run_pipeline(
     request_text: str | None = None,
     pdf_policy: str = "attempt",
 ) -> dict:
+    from report_sanitizer import sanitize_report_markdown
+
     output_dir.mkdir(parents=True, exist_ok=True)
     materials_index = ingest_materials(input_dir, vault_dir, pet_name)
     selected_report_type, routing = resolve_report_type(report_type, request_text, materials_index)
     report_md, warnings = build_report_markdown(selected_report_type, pet_name, materials_index)
+    report_md = sanitize_report_markdown(report_md)
     (output_dir / "report.md").write_text(report_md, encoding="utf-8")
     report_tex = render_latex(report_md, selected_report_type, pet_name)
     (output_dir / "report.tex").write_text(report_tex, encoding="utf-8")
     pdf_ok, pdf_log = compile_pdf(output_dir / "report.tex", output_dir, skip=skip_pdf_compile or pdf_policy == "skip")
     pdf_status = "compiled" if pdf_ok and (output_dir / "report.pdf").exists() else ("skipped" if "skipped" in pdf_log.lower() else "failed")
-    report_id = report_id_for(selected_report_type, pet_name, output_dir)
-    manifest = {
-        "id": report_id,
-        "pet_name": pet_name,
-        "report_type": selected_report_type,
-        "created_at": datetime.now().isoformat(timespec="seconds"),
-        "pdf_status": pdf_status,
-        "pdf_policy": pdf_policy,
-        "routing": routing,
-        "materials": [
-            {key: value for key, value in material.items() if key != "text"}
-            for material in materials_index.get("materials", [])
-        ],
-        "outputs": {
-            "report_md": str(output_dir / "report.md"),
-            "report_tex": str(output_dir / "report.tex"),
-            "report_pdf": str(output_dir / "report.pdf"),
-            "manifest": str(output_dir / "manifest.json"),
-            "qa_result": str(output_dir / "qa_result.json"),
-            "build_log": str(output_dir / "build.log"),
-        },
-        "warnings": warnings,
-    }
+    rid = report_id_for(selected_report_type, pet_name, output_dir)
+    manifest = build_internal_manifest(
+        report_id=rid,
+        pet_name=pet_name,
+        report_type=selected_report_type,
+        pdf_status=pdf_status,
+        pdf_policy=pdf_policy,
+        routing=routing,
+        materials_index=materials_index,
+        output_dir=output_dir,
+        warnings=warnings,
+    )
     json_dump(output_dir / "manifest.json", manifest)
+    user_manifest = build_user_manifest(manifest)
+    json_dump(output_dir / "user_manifest.json", user_manifest)
     qa = inspect_report(output_dir, report_md, pdf_required=pdf_policy == "required", materials_index=materials_index)
     if not pdf_ok and not skip_pdf_compile:
         qa["warnings"].append("Local TeX engine unavailable or compile failed; report.pdf may be missing.")

@@ -1,0 +1,62 @@
+# Internal Leakage Eval Cases — Golden tests for report sanitization
+# Each case defines: input report_md, expected: must_not_contain, must_contain
+
+cases:
+  - id: no_raw_type_codes
+    description: "Report must not contain raw internal type codes"
+    input: |
+      # 宠物医疗账单解释报告
+      ## 使用材料
+      - sample.txt：类型=insurance_policy；日期=2026-01-01；置信度=0.9
+      - lab.txt：类型=lab_report；状态=extracted
+    must_not_contain:
+      - "类型=insurance_policy"
+      - "类型=lab_report"
+      - "置信度=0.9"
+      - "状态=extracted"
+    must_contain:
+      - "类型=保险保单"
+      - "类型=化验报告"
+
+  - id: no_confidence_scores
+    description: "Report must not contain confidence scores"
+    input: |
+      # Test
+      - file.md：类型=bill；置信度=0.7；状态=indexed_only
+    must_not_contain:
+      - "置信度"
+      - "0.7"
+      - "indexed_only"
+    must_contain:
+      - "类型=账单/费用明细"
+
+  - id: no_forbidden_tags
+    description: "Report must not contain [FORBIDDEN] or [INTERNAL] tags"
+    input: |
+      # Test
+      This is a [FORBIDDEN] item and [INTERNAL] data.
+    must_not_contain:
+      - "[FORBIDDEN]"
+      - "[INTERNAL]"
+
+  - id: no_routing_metadata
+    description: "Report must not contain routing reason strings"
+    input: |
+      # Test
+      Route: request_mentions_billing
+      Classification: dispatch
+    must_not_contain:
+      - "request_mentions_billing"
+      - "dispatch"
+      - "routing"
+
+  - id: no_developer_terms
+    description: "Report must not contain developer-facing terms"
+    input: |
+      # Test
+      This PRD document uses Harness framework with HMW and POV analysis.
+    must_not_contain:
+      - "PRD"
+      - "Harness"
+      - "HMW"
+      - "POV"

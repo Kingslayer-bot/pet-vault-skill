@@ -11,6 +11,14 @@ outputs/
 *.fls
 *.fdb_latexmk
 *.sqlite
+*.sqlite3
 *.sqlite3-shm
 *.sqlite3-wal
+*.sqlite3-journal
 pet-vault-skill/kb/index/*.sqlite
+PetVaultRun/
+*.pdf
+reports/
+test/
+build.log
+.user_manifest.json

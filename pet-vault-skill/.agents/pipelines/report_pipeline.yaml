@@ -1,0 +1,51 @@
+# Report Pipeline — Compose, render, QA
+pipeline: report
+version: "1.0"
+
+steps:
+  - id: compose_report
+    script: scripts/build_report.py
+    description: "Combine analysis outputs into report.md"
+    agents: [report_composer_agent]
+
+  - id: sanitize_report
+    script: scripts/report_sanitizer.py
+    description: "Remove internal terms from user-facing report"
+    depends_on: compose_report
+
+  - id: render_latex
+    script: scripts/markdown_to_latex.py
+    description: "Convert sanitized Markdown to LaTeX"
+    agents: [latex_renderer_agent]
+    depends_on: sanitize_report
+
+  - id: compile_pdf
+    script: scripts/compile_pdf.py
+    description: "Compile LaTeX to PDF with xelatex/latexmk"
+    depends_on: render_latex
+
+  - id: inspect_report
+    script: scripts/inspect_pdf_layout.py
+    description: "Run QA checks on report artifacts"
+    agents: [quality_inspector_agent]
+    depends_on: compile_pdf
+
+agents:
+  - report_composer_agent
+  - latex_renderer_agent
+  - quality_inspector_agent
+  - clinic_soap_draft_agent
+  - clinic_client_summary_agent
+
+input:
+  - materials_index.json
+  - analysis results from domain_analysis pipeline
+
+output:
+  - report.md (sanitized)
+  - report.tex
+  - report.pdf
+  - manifest.json
+  - user_manifest.json
+  - qa_result.json
+  - build.log

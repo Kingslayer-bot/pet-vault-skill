@@ -1,0 +1,36 @@
+# Intake Pipeline — Material ingestion and classification
+pipeline: intake
+version: "1.0"
+
+steps:
+  - id: init_vault
+    script: scripts/init_vault.py
+    description: "Create vault directories and SQLite tables"
+
+  - id: ingest_materials
+    script: scripts/ingest_materials.py
+    description: "Copy source materials, extract text, build material index"
+    depends_on: init_vault
+
+  - id: classify_materials
+    script: scripts/classify_materials.py
+    description: "Classify bills, invoices, prescriptions, lab reports, policies"
+    depends_on: ingest_materials
+
+  - id: normalize_markdown
+    script: scripts/normalize_markdown.py
+    description: "Normalize raw text into stable Markdown"
+    depends_on: ingest_materials
+
+agents:
+  - material_organizer_agent
+  - pet_profile_inference_agent
+
+input:
+  - raw material files (PNG, MD, TXT, PDF)
+
+output:
+  - vault/structured/materials_index.json
+  - vault/cleaned/markdown/*.md
+  - vault/raw/<type>/*
+  - vault/pet_vault.sqlite3

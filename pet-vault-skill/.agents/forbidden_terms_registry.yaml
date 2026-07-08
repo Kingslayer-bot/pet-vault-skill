@@ -1,0 +1,62 @@
+# Forbidden Terms Registry — Single source of truth for sanitizer and tests
+# This file is the canonical list. report_sanitizer.py and test_internal_leakage.py
+# should reference this file (or its values) to stay in sync.
+
+# Raw internal type codes (must never appear in user reports)
+internal_type_codes:
+  - invoice
+  - bill
+  - insurance_policy
+  - claim_document
+  - lab_report
+  - medical_report
+  - prescription
+  - appointment
+  - clinic_communication
+  - pet_profile
+  - unknown
+
+# Internal status codes
+internal_status_codes:
+  - extracted
+  - indexed_only
+  - encoding_repaired
+  - indexed_with_manual_transcription
+
+# Internal metadata keywords
+internal_metadata_keywords:
+  - 置信度
+  - confidence
+  - routing
+  - dispatch
+  - harness
+  - classification
+  - intent
+  - debug
+  - trace
+  - internal
+
+# Developer-facing terms (from original harness)
+developer_terms:
+  - PRD
+  - Harness
+  - HMW
+  - POV
+  - 产品需求文档
+  - 设计提案约束
+  - 开发者校验
+
+# Tags that must never appear in user output
+forbidden_tags:
+  - "[FORBIDDEN]"
+  - "[INTERNAL]"
+  - "[DEBUG]"
+
+# Routing reason prefixes (internal)
+routing_reason_prefixes:
+  - request_mentions_
+  - materials_include_
+  - fallback_
+
+# Combined flat list for quick regex matching
+all_forbidden: []  # Computed at load time from above lists

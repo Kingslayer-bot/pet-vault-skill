@@ -1,0 +1,41 @@
+# Billing Report Eval Cases
+
+cases:
+  - id: bill_explain_basic
+    description: "Bill explanation report must contain required sections"
+    input_materials:
+      - name: "bill.txt"
+        content: |
+          宠物：Mimi
+          日期：2026-07-05
+          医院：星河动物医院
+          项目：血常规 120 元；B超 350 元；处方药 86.5 元
+    report_type: bill_explain
+    must_contain:
+      - "费用分类"
+      - "高额项目"
+      - "待确认"
+      - "后续建议"
+
+  - id: claim_check_basic
+    description: "Claim check report must contain required sections"
+    input_materials:
+      - name: "policy.txt"
+        content: "宠物保险保单：Mimi，等待期需核对"
+      - name: "invoice.txt"
+        content: "发票：Mimi，检查费 500 元"
+    report_type: claim_check
+    must_contain:
+      - "已有材料"
+      - "缺失材料"
+      - "不承诺理赔结果"
+
+  - id: no_internal_terms_in_output
+    description: "Report must not contain internal type codes"
+    report_type: bill_explain
+    must_not_contain:
+      - "insurance_policy"
+      - "lab_report"
+      - "prescription"
+      - "提取"
+      - "索引"

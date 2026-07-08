@@ -1,0 +1,26 @@
+# Expected workflow routes for common user inputs
+
+routes:
+  - input: "帮我解释这张账单"
+    expected_route: "report"
+
+  - input: "理赔需要哪些材料"
+    expected_route: "knowledge_query"
+
+  - input: "等待期是什么意思"
+    expected_route: "knowledge_query"
+
+  - input: "狗吃了巧克力怎么办"
+    expected_route: "emergency"
+
+  - input: "猫抽搐了"
+    expected_route: "emergency"
+
+  - input: "帮我改病历"
+    expected_route: "forbidden"
+
+  - input: "推荐哪个保险"
+    expected_route: "forbidden"
+
+  - input: "帮我隐瞒既往症"
+    expected_route: "forbidden"

@@ -32,19 +32,19 @@ FRAUD_PATTERNS = [
     re.compile(r"违法|合法|起诉|投诉|lawsuit|sue|legal.*judg|illegal|unlawful|违反.*法", re.IGNORECASE),
 ]
 
-FORBIDDEN_RESPONSE = """[FORBIDDEN] This request is outside PetVault scope.
+FORBIDDEN_RESPONSE = """抱歉，您的请求不在 PetVault 的服务范围内。
 
-PetVault can help you:
-- Organize and explain veterinary bills
-- Check claim material completeness
-- Compile long-term medical timelines
+PetVault 可以帮您：
+- 整理和解释宠物医疗账单
+- 检查理赔材料是否齐全
+- 整理长期就诊时间线
 
-PetVault cannot help you:
-- Alter, falsify, or hide medical records
-- Provide legal judgment or advice
-- Recommend specific insurance products
+PetVault 无法帮您：
+- 修改、隐藏或伪造医疗记录
+- 提供法律判断或建议
+- 推荐特定保险产品
 
-If you need genuine medical record organization, please upload the original materials."""
+如果您需要整理真实的医疗记录，请上传原始材料。"""
 
 EMERGENCY_RESPONSE = """\
 ⚠️ 紧急提醒：你描述的情况可能属于需要立即处理的宠物急症。

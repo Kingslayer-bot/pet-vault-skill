@@ -1,0 +1,46 @@
+# Safety & Routing Pipeline — Request routing and guardrails
+pipeline: safety_routing
+version: "1.0"
+
+steps:
+  - id: detect_emergency
+    script: scripts/petvault_dispatch.py
+    description: "Check for emergency red flags (highest priority)"
+    function: detect_emergency
+
+  - id: detect_forbidden
+    script: scripts/petvault_dispatch.py
+    description: "Check for forbidden requests (fraud, legal, product recommendation)"
+    function: detect_forbidden
+
+  - id: detect_knowledge_intent
+    script: scripts/petvault_dispatch.py
+    description: "Check if request is knowledge-only (no materials)"
+    function: detect_knowledge_intent
+
+  - id: dispatch_route
+    script: scripts/petvault_dispatch.py
+    description: "Route to emergency/forbidden/report/knowledge_query"
+    function: dispatch
+    depends_on: [detect_emergency, detect_forbidden, detect_knowledge_intent]
+
+  - id: validate_insurance_output
+    script: scripts/validate_insurance_output.py
+    description: "Enforce insurance guardrails on generated text"
+
+  - id: validate_billing_output
+    script: scripts/validate_billing.py
+    description: "Enforce billing guardrails on generated text"
+
+agents:
+  - orchestrator_agent
+
+input:
+  - user request text
+  - optional: input directory with materials
+
+output:
+  - route decision (emergency/forbidden/report/knowledge_query)
+  - emergency response (if applicable)
+  - forbidden response (if applicable)
+  - knowledge answer (if applicable)
