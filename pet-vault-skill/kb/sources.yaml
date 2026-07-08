@@ -155,3 +155,29 @@ sources:
     forbidden_use: "不要替代医院收费解释或判断价格公平。"
     needs_verification: false
 
+  - id: usda-aphis-pet-travel
+    name: USDA APHIS Pet Travel
+    url: "https://www.aphis.usda.gov/aphis/pet-travel"
+    jurisdiction: US
+    language: en
+    source_tier: Tier 1
+    domains: [travel]
+    last_reviewed: 2026-07-08
+    notes: "US federal requirements for pet travel, health certificates, and interstate/international transport."
+    allowed_use: "Explain US pet travel health certificate and vaccination requirements."
+    forbidden_use: "Do not guarantee boarding or import approval."
+    needs_verification: true
+
+  - id: cn-customs-pet-travel
+    name: 中国海关总署进出境旅客携带宠物检疫规定
+    url: "http://www.customs.gov.cn/"
+    jurisdiction: CN
+    language: zh
+    source_tier: Tier 1
+    domains: [travel]
+    last_reviewed: 2026-07-08
+    notes: "中国海关对携带宠物出入境的检疫要求，包括健康证明、疫苗接种和隔离规定。"
+    allowed_use: "说明中国宠物出入境检疫要求和材料清单。"
+    forbidden_use: "不要承诺一定能通过检疫或入境。"
+    needs_verification: true
+

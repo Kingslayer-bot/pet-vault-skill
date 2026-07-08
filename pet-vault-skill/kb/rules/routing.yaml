@@ -1,6 +1,6 @@
 bill_report:
   triggers:
-    material_types: [invoice, payment_record]
+    material_types: [invoice, bill]
     intents: [explain_bill, cost_breakdown, reimbursement, "被坑", "为什么这么贵"]
   output:
     chat: concise_summary
@@ -9,7 +9,7 @@ bill_report:
 
 insurance_precheck:
   triggers:
-    material_types: [invoice, insurance_policy, claim_form, rejection_letter]
+    material_types: [invoice, insurance_policy, claim_document]
     intents: [claim, reimbursement, "能不能报销", "理赔"]
   output:
     chat: concise_summary
@@ -35,9 +35,17 @@ emergency_boundary:
 
 timeline_update:
   triggers:
-    material_types: [medical_record, lab_report, imaging_report, chat_record]
+    material_types: [medical_report, lab_report, clinic_communication, appointment]
     intents: [history, timeline, archive, "整理病史"]
   output:
     chat: concise_summary
     pdf: required
     vault_update: true
+
+travel_care:
+  triggers:
+    no_user_material: true
+    terms: ["出差", "旅行", "航班", "飞机", "托运", "随身", "航空箱", "检疫", "健康证明", "travel", "flight", "airline", "carrier", "quarantine", "health certificate"]
+  output:
+    chat: short_answer_with_sources
+    pdf: not_required

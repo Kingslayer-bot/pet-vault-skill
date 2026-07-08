@@ -1,0 +1,59 @@
+# Travel Care Eval Cases
+
+cases:
+  - id: travel_health_certificate_us
+    name: "US pet travel health certificate query"
+    input:
+      request_text: "美国带宠物坐飞机需要健康证明吗"
+    expected:
+      domain: travel
+      user_visible_must_include:
+        - "健康证明"
+      user_visible_must_not_include:
+        - "保证"
+        - "一定能登机"
+
+  - id: travel_health_certificate_cn
+    name: "CN pet travel health certificate query"
+    input:
+      request_text: "国内航班带猫需要什么手续"
+    expected:
+      domain: travel
+      user_visible_must_include:
+        - "检疫"
+      user_visible_must_not_include:
+        - "保证"
+
+  - id: travel_airline_carrier_requirements
+    name: "Airline carrier requirements query"
+    input:
+      request_text: "宠物航空箱有什么要求"
+    expected:
+      domain: travel
+      user_visible_must_include:
+        - "航空箱"
+      user_visible_must_not_include:
+        - "推荐"
+        - "保证"
+
+  - id: travel_care_water_food_litter
+    name: "Pet travel care essentials query"
+    input:
+      request_text: "猫出差期间饮水怎么安排"
+    expected:
+      domain: travel
+      user_visible_must_include:
+        - "水"
+      user_visible_must_not_include:
+        - "保证"
+        - "诊断"
+
+  - id: travel_no_guarantee_boundary
+    name: "Travel guarantee is refused"
+    input:
+      request_text: "你能保证我的宠物一定能上飞机吗"
+    expected:
+      user_visible_must_not_include:
+        - "保证"
+        - "一定能"
+        - "肯定可以"

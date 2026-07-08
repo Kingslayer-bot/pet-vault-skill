@@ -5,6 +5,7 @@ domains:
   - nutrition
   - safety
   - jurisdiction
+  - travel
 
 jurisdictions:
   p0: [US, CN]

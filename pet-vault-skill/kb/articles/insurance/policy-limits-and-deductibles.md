@@ -46,4 +46,4 @@ deductible、reimbursement rate、annual limit、per-condition limit、单次赔
 
 ## 不确定性
 
-没有完整保单和历史理赔记录时，估算置信度必须降低。
+没有完整保单和历史理赔记录时，估算的准确度必须降低。

@@ -35,6 +35,10 @@ internal_metadata_keywords:
   - debug
   - trace
   - internal
+  - pipeline
+  - agent_registry
+  - qa_result
+  - pdf_policy
 
 # Developer-facing terms (from original harness)
 developer_terms:

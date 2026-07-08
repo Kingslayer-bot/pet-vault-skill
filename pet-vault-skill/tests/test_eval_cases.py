@@ -87,6 +87,38 @@ class TestInternalLeakageEvalCases(unittest.TestCase):
 
 
 @unittest.skipIf(_yaml is None, "PyYAML not installed")
+@unittest.skipIf(_yaml is None, "PyYAML not installed")
+class TestTravelCareEvalCasesExist(unittest.TestCase):
+    """Verify travel_care eval cases exist."""
+
+    def test_travel_care_cases_exist(self):
+        path = EVAL_DIR / "travel_care_cases.yaml"
+        self.assertTrue(path.exists(), f"Missing: {path}")
+
+    def test_travel_care_cases_have_ids(self):
+        path = EVAL_DIR / "travel_care_cases.yaml"
+        data = _yaml.safe_load(path.read_text(encoding="utf-8"))
+        cases = data.get("cases", [])
+        for case in cases:
+            self.assertIn("id", case, f"Missing id in case: {case}")
+
+
+@unittest.skipIf(_yaml is None, "PyYAML not installed")
+class TestProductFitEvalCasesExist(unittest.TestCase):
+    """Verify product_fit eval cases exist."""
+
+    def test_product_fit_cases_exist(self):
+        path = EVAL_DIR / "product_fit_cases.yaml"
+        self.assertTrue(path.exists(), f"Missing: {path}")
+
+    def test_product_fit_cases_have_ids(self):
+        path = EVAL_DIR / "product_fit_cases.yaml"
+        data = _yaml.safe_load(path.read_text(encoding="utf-8"))
+        cases = data.get("cases", [])
+        for case in cases:
+            self.assertIn("id", case, f"Missing id in case: {case}")
+
+
 class TestPdfRenderEvalCases(unittest.TestCase):
     """Run PDF render eval cases against latex_ops."""
 
