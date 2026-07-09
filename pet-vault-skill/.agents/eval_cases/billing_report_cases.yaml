@@ -2,7 +2,7 @@
 
 cases:
   - id: bill_explain_basic
-    description: "Bill explanation report must contain required sections"
+    description: "Bill explanation report must contain required user-facing sections"
     input_materials:
       - name: "bill.txt"
         content: |
@@ -12,10 +12,65 @@ cases:
           项目：血常规 120 元；B超 350 元；处方药 86.5 元
     report_type: bill_explain
     must_contain:
-      - "费用分类"
-      - "高额项目"
-      - "待确认"
+      - "费用分类总览"
+      - "已识别项目解释"
+      - "本次就诊档案卡"
       - "后续建议"
+
+  - id: bill_explain_with_noise
+    description: "Bill with OCR noise items must show flagged items and hospital questions"
+    input_materials:
+      - name: "bill.txt"
+        content: |
+          宠物：Mimi
+          日期：2026-07-05
+          医院：星河动物医院
+          01-16 18:06
+          血常规 120 元；B超 350 元；处方药 86.5 元
+    report_type: bill_explain
+    must_contain:
+      - "重点核实项目"
+      - "疑似误识别"
+      - "你现在需要向医院确认的问题"
+
+  - id: bill_explain_no_toc
+    description: "Bill explanation report must NOT contain table of contents"
+    input_materials:
+      - name: "bill.txt"
+        content: "宠物：Mimi；日期：2026-07-05；项目：血常规 120 元"
+    report_type: bill_explain
+    must_not_contain:
+      - "\\tableofcontents"
+      - "目录"
+
+  - id: bill_explain_amount_calculation
+    description: "Amount summary must correctly separate recognized, uncertain, and noise"
+    input_materials:
+      - name: "bill.txt"
+        content: |
+          宠物：Mimi
+          日期：2026-07-05
+          医院：星河动物医院
+          01-16 18:06
+          血常规 120 元；B超 350 元；不明项目 960 元
+    report_type: bill_explain
+    must_contain:
+      - "已识别金额"
+      - "待核实金额"
+      - "疑似误识别金额"
+
+  - id: bill_explain_copyable_phrase
+    description: "Report must include copyable phrase when there are flagged items"
+    input_materials:
+      - name: "bill.txt"
+        content: |
+          宠物：Mimi
+          日期：2026-07-05
+          医院：星河动物医院
+          不明项目 960 元
+    report_type: bill_explain
+    must_contain:
+      - "可复制给医院确认的话"
 
   - id: claim_check_basic
     description: "Claim check report must contain required sections"
@@ -39,3 +94,22 @@ cases:
       - "prescription"
       - "提取"
       - "索引"
+
+  - id: bill_explain_medical_safety
+    description: "Report must not contain diagnostic assertions or claim promises"
+    input_materials:
+      - name: "bill.txt"
+        content: |
+          宠物：Mimi
+          日期：2026-07-05
+          医院：星河动物医院
+          替硝唑 86.5 元；654-2 20 元
+    report_type: bill_explain
+    must_not_contain:
+      - "说明宠物患有"
+      - "提示存在.*感染"
+      - "可判断为"
+      - "说明医院收费合理"
+      - "可以作为理赔依据"
+      - "一定可以报销"
+      - "医院可能乱收费"

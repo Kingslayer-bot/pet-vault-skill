@@ -22,6 +22,9 @@
 \usepackage{hyperref}
 \usepackage{needspace}
 \usepackage{xcolor}
+\usepackage{tcolorbox}
+
+\tcbuselibrary{skins,breakable}
 
 \setlength{\parindent}{2\ccwd}
 \setlength{\parskip}{0pt}
@@ -31,54 +34,98 @@
 \captionsetup{font=small,labelsep=quad}
 \hypersetup{hidelinks,pdfauthor={PetVault},pdftitle={Pet Care Report}}
 
+% --- Header / Footer ---
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\small PetVault}
-\rhead{\small Local Care Archive}
-\cfoot{\small\thepage}
-\renewcommand{\headrulewidth}{0.45pt}
+\lhead{\small\color{gray!70} PetVault}
+\rhead{\small\color{gray!70} 宠物档案}
+\cfoot{\small\color{gray!60}\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
 \renewcommand{\footrulewidth}{0pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{gray!40}\leaders\hrule height \headrulewidth\hfill}}
+
+% --- Section titles (unnumbered) ---
+\renewcommand{\thesection}{}
+\renewcommand{\thesubsection}{}
+\renewcommand{\thesubsubsection}{}
+\setcounter{secnumdepth}{0}
 
 \titleformat{\section}
-  {\Large\bfseries}
-  {\thesection}
-  {0.9em}
+  {\Large\bfseries\color{black}}
+  {}
+  {0em}
   {}
 \titleformat{\subsection}
   {\large\bfseries}
-  {\thesubsection}
-  {0.8em}
+  {}
+  {0em}
   {}
 \titleformat{\subsubsection}
   {\normalsize\bfseries}
-  {\thesubsubsection}
-  {0.7em}
+  {}
+  {0em}
   {}
 \titlespacing{\section}{0pt}{1.35em}{0.55em}
 \titlespacing{\subsection}{0pt}{1.0em}{0.35em}
 \titlespacing{\subsubsection}{0pt}{0.8em}{0.25em}
 
+% --- Column types ---
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcolumntype{C}{>{\centering\arraybackslash}X}
 \renewcommand{\arraystretch}{1.22}
 
-\newsavebox{\noteboxsave}
-\newenvironment{notebox}[1]{%
+% --- Callout box (gray background, no thick borders) ---
+\newtcolorbox{pvcallout}[1][]{
+  colback=gray!5,
+  colframe=gray!30,
+  boxrule=0.4pt,
+  arc=2pt,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  before skip=8pt, after skip=8pt,
+  fonttitle=\small\bfseries,
+  #1
+}
+
+% --- Message box (copyable text area, distinct from callout) ---
+\newtcolorbox{pvmessagebox}{
+  colback=gray!3,
+  colframe=gray!20,
+  boxrule=0.3pt,
+  arc=3pt,
+  left=12pt, right=12pt, top=10pt, bottom=10pt,
+  before skip=10pt, after skip=10pt,
+}
+
+% --- Info card (lightweight, no heavy borders) ---
+\newenvironment{pvinfo}{%
   \par\medskip
-  \begingroup
-  \setlength{\fboxrule}{0.55pt}%
-  \setlength{\fboxsep}{7pt}%
-  \begin{lrbox}{\noteboxsave}%
-  \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
-    \noindent{\bfseries #1}\par\vspace{2pt}%
-    \ignorespaces
+  \begin{minipage}{\linewidth}
+  \small
+  \setlength{\parskip}{3pt}
 }{%
-  \end{minipage}%
-  \end{lrbox}%
-  \noindent\fbox{\usebox{\noteboxsave}}%
-  \endgroup
+  \end{minipage}
   \par\medskip
 }
-\newenvironment{keybox}[1][Key Notes]
-  {\begin{notebox}{#1}}
-  {\end{notebox}}
+
+% --- Amount card (for homepage financial summary) ---
+\newcommand{\pvamountcard}[2]{%
+  \begin{minipage}[t]{0.22\linewidth}
+    \centering
+    \textbf{\small #1}\\[2pt]
+    {\large\bfseries #2}
+  \end{minipage}%
+}
+
+% --- Environments for page break control ---
+\newcommand{\pvsection}[1]{%
+  \Needspace{6\baselineskip}%
+  \section{#1}%
+}
+\newcommand{\pvsubsection}[1]{%
+  \Needspace{5\baselineskip}%
+  \subsection{#1}%
+}
+\newcommand{\pvsubsubsection}[1]{%
+  \Needspace{4\baselineskip}%
+  \subsubsection{#1}%
+}

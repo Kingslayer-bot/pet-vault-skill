@@ -1,11 +1,23 @@
 {{ styles }}
 
+% Suppress header on first page only
+\fancypagestyle{firstpage}{%
+  \fancyhf{}%
+  \cfoot{\small\color{gray!60}\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
 \begin{document}
+\thispagestyle{firstpage}
+
 \begin{center}
-  {\LARGE\bfseries PetVault Bill Explanation}\\[5pt]
-  {\large {{ pet_name }}}
+  {\LARGE\bfseries 宠物医疗账单解释报告}\\[3pt]
+  {\small\color{gray!60} PetVault Care Archive}
 \end{center}
-\tableofcontents
-\newpage
+
+\vspace{0.3em}
+
 {{ body }}
+
 \end{document}

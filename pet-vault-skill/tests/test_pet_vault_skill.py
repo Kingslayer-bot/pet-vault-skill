@@ -173,7 +173,7 @@ class PetVaultSkillPackageTests(unittest.TestCase):
         expectations = {
             "general": ["综合整理摘要", "待确认"],
             "medical_summary": ["一句话摘要", "建议向兽医确认的问题"],
-            "bill_explain": ["费用分类", "高额项目"],
+            "bill_explain": ["费用分类总览", "已识别项目解释"],
             "claim_check": ["已有材料", "不承诺理赔结果"],
             "timeline": ["就诊时间线", "转诊摘要"],
             "chronic_review": ["月度概览", "长期病情趋势"],
@@ -245,9 +245,9 @@ class PetVaultSkillPackageTests(unittest.TestCase):
                 "created_at": "2026-07-07T00:00:00",
             },
         )
-        self.assertIn("934.64 USD", report_text)
+        self.assertIn("934.64", report_text)
         self.assertIn("CareCredit", report_text)
-        self.assertIn("80.00 USD", report_text)
+        self.assertIn("80.00", report_text)
 
     def test_auto_report_type_from_bill_request(self):
         output_dir, _vault_dir = self._run_pipeline_case(
@@ -259,8 +259,8 @@ class PetVaultSkillPackageTests(unittest.TestCase):
         self.assertEqual("bill_explain", manifest["report_type"])
         self.assertEqual("auto", manifest["routing"]["requested_report_type"])
         report_text = (output_dir / "report.md").read_text(encoding="utf-8")
-        self.assertIn("费用分类", report_text)
-        self.assertIn("高额项目", report_text)
+        self.assertIn("费用分类总览", report_text)
+        self.assertIn("已识别项目解释", report_text)
 
     def test_pdf_required_fails_when_pdf_is_missing(self):
         TMP_ROOT.mkdir(parents=True, exist_ok=True)

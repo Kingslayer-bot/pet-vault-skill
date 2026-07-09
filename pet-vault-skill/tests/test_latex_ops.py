@@ -90,9 +90,9 @@ class TestMarkdownToLatexBody(unittest.TestCase):
     def test_headings(self):
         md = "# Title\n## Sub\n### SubSub"
         result = markdown_to_latex_body(md)
-        self.assertIn("\\section{Title}", result)
-        self.assertIn("\\subsection{Sub}", result)
-        self.assertIn("\\subsubsection{SubSub}", result)
+        self.assertIn("\\pvsection{Title}", result)
+        self.assertIn("\\pvsubsection{Sub}", result)
+        self.assertIn("\\pvsubsubsection{SubSub}", result)
 
     def test_list(self):
         md = "- item1\n- item2"

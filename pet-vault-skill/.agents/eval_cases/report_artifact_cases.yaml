@@ -2,7 +2,7 @@
 
 cases:
   - id: bill_report_has_reconstructed_section
-    name: "Bill report includes reconstructed bill section"
+    name: "Bill report includes user-facing bill sections"
     input:
       report_type: "bill_explain"
       materials:
@@ -10,8 +10,8 @@ cases:
           text: "血常规 120 元；B超 350 元"
     expected:
       must_contain:
-        - "账单复刻区"
-        - "收费项目"
+        - "费用分类总览"
+        - "已识别项目解释"
       must_not_contain:
         - "insurance_policy"
         - "lab_report"

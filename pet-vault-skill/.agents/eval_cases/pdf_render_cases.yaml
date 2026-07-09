@@ -38,9 +38,9 @@ cases:
       ## Sub Title
       ### Sub Sub Title
     must_contain_latex:
-      - "\\section{Main Title}"
-      - "\\subsection{Sub Title}"
-      - "\\subsubsection{Sub Sub Title}"
+      - "\\pvsection{Main Title}"
+      - "\\pvsubsection{Sub Title}"
+      - "\\pvsubsubsection{Sub Sub Title}"
 
   - id: list_conversion
     description: "Lists must convert to itemize"
